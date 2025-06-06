@@ -1162,55 +1162,55 @@
                     </div>
                 </div>
                 
-                <div id="stats-view-content" class="main-view-section hidden">
-                     <h3 class="view-title">نظرة عامة على الإحصائيات</h3>
-                     <div id="stats-summary-cards" class="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-6"></div>
-                     
-                     <div id="stock-alerts-section-in-stats" class="mt-6"> 
-                        <h4 class="section-title">تنبيهات نقص المخزون</h4>
-                        <div class="mb-4 bg-card-background-color p-4 rounded-lg shadow-sm"> 
-                            <label for="stock-alert-threshold-stats" class="form-label">تنبيه إذا كانت الكمية أقل من أو تساوي:</label>
-                            <div class="flex items-center gap-3">
-                                <input type="number" id="stock-alert-threshold-stats" class="form-input w-24 text-sm py-2" value="1" min="0">
-                                <button id="refresh-stock-alerts-button-stats" class="app-button app-button-secondary px-4 py-2 text-xs">
-                                    <i class="fas fa-sync-alt mr-1"></i> تحديث
-                                </button>
-                            </div>
-                        </div>
-                        <div id="stock-alerts-list-area-stats" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        </div>
-                     </div>
+<div id="stats-view-content" class="main-view-section hidden">
+    <h3 class="view-title">نظرة عامة على الإحصائيات</h3>
+    <div id="stats-summary-cards" class="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-6"></div>
+    
+    <div id="monthly-sales-section-in-stats" class="mt-6">
+       <h4 class="section-title">تقرير المبيعات الشهرية</h4>
+       <div id="monthly-sales-display-area-stats">
+       </div>
+    </div>
 
-                     <div id="best-selling-shoes-section" class="mt-6">
-                        <h4 class="section-title">الأحذية الأكثر مبيعًا</h4>
-                        <div id="best-selling-shoes-list" class="text-sm bg-card-background-color p-4 rounded-lg shadow-sm"></div> 
-                     </div>
+    <div class="back-button-container">
+       <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
+   </div>
+</div>
 
-                     <div id="monthly-sales-section-in-stats" class="mt-6">
-                        <h4 class="section-title">تقرير المبيعات الشهرية</h4>
-                        <div id="monthly-sales-display-area-stats">
-                        </div>
-                     </div>
+<div id="other-services-view-content" class="main-view-section hidden">
+    <h3 class="view-title">خدمات أخرى</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)">
+            <i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p>
+        </div>
+        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)">
+            <i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p>
+        </div>
+    </div>
 
-                     <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
+    <div id="stock-alerts-section-in-stats" class="mt-6"> 
+       <h4 class="section-title">تنبيهات نقص المخزون</h4>
+       <div class="mb-4 bg-card-background-color p-4 rounded-lg shadow-sm"> 
+           <label for="stock-alert-threshold-stats" class="form-label">تنبيه إذا كانت الكمية أقل من أو تساوي:</label>
+           <div class="flex items-center gap-3">
+               <input type="number" id="stock-alert-threshold-stats" class="form-input w-24 text-sm py-2" value="1" min="0">
+               <button id="refresh-stock-alerts-button-stats" class="app-button app-button-secondary px-4 py-2 text-xs">
+                   <i class="fas fa-sync-alt mr-1"></i> تحديث
+               </button>
+           </div>
+       </div>
+       <div id="stock-alerts-list-area-stats" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+       </div>
+    </div>
 
-                <div id="other-services-view-content" class="main-view-section hidden">
-                    <h3 class="view-title">خدمات أخرى</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)">
-                            <i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p>
-                        </div>
-                        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)">
-                            <i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p>
-                        </div>
-                    </div>
-                    <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
+    <div id="best-selling-shoes-section" class="mt-6">
+       <h4 class="section-title">الأحذية الأكثر مبيعًا</h4>
+       <div id="best-selling-shoes-list" class="text-sm bg-card-background-color p-4 rounded-lg shadow-sm"></div> 
+    </div>
+    <div class="back-button-container">
+        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
+    </div>
+</div>
 
                 <div id="delivery-services-view-content" class="main-view-section hidden">
                     <h3 class="view-title">أسعار خدمات التوصيل</h3>
@@ -1975,6 +1975,43 @@
                 }
             });
         }
+async function displayBestSellingShoes() {
+    const bestSellingList = document.getElementById('best-selling-shoes-list');
+    bestSellingList.innerHTML = '';
+    try {
+        await db.open();
+        const sales = await db.sales.toArray();
+        if (sales.length > 0) {
+            const salesByShoe = {};
+            sales.forEach(sale => {
+                salesByShoe[sale.shoeName] = (salesByShoe[sale.shoeName] || 0) + sale.quantity;
+            });
+            const sortedBestSelling = Object.entries(salesByShoe)
+                                        .sort(([,a],[,b]) => b-a)
+                                        .slice(0, 5); 
+
+            if (sortedBestSelling.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'list-none p-0';
+                sortedBestSelling.forEach(([name, quantity]) => {
+                    const item = document.createElement('li');
+                    item.className = 'py-2 border-b border-border-color flex justify-between items-center';
+                    // هذا هو السطر الذي تم إصلاحه
+                    item.innerHTML = `<span>${name}</span> <span class="font-semibold text-primary-color">${quantity} قطعة</span>`;
+                    ul.appendChild(item);
+                });
+                bestSellingList.appendChild(ul);
+            } else {
+                 bestSellingList.innerHTML = '<p class="text-text-color-secondary">لا توجد بيانات مبيعات كافية لعرض الأكثر مبيعًا.</p>';
+            }
+        } else {
+            bestSellingList.innerHTML = '<p class="text-text-color-secondary">لا توجد مبيعات مسجلة بعد.</p>';
+        }
+    } catch (error) {
+        console.error("Error displaying best-selling shoes:", error);
+        bestSellingList.innerHTML = '<p class="text-error-color">خطأ في عرض الأحذية الأكثر مبيعًا.</p>';
+    }
+}
 
         if (signupForm) {
             signupForm.addEventListener('submit', async (e) => {
@@ -2254,14 +2291,20 @@ if (firebaseData.monthlyReports) { await db.monthlyReports.bulkPut(firebaseData.
                              lastFirebaseSyncDateEl.textContent = 'غير متوفر (بيانات قديمة)';
                         }
                         
-                        showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
-                        // Refresh current view if applicable
-                        const currentViewId = document.querySelector('.main-view-section:not(.hidden)')?.id;
-                        if (currentViewId) {
-                            navigateToView(currentViewId, document.querySelector(`.nav-item[data-target="${currentViewId.replace('-view-content', '')}"]`));
-                        } else {
-                            navigateToView('home-view-content', document.querySelector('.nav-item[data-target="home"]')); 
-                        }
+showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
+
+// قم بتحديث الإحصائيات بشكل صريح
+if (!document.getElementById('stats-view-content').classList.contains('hidden')) {
+    displayStats();
+}
+
+// Refresh current view if applicable
+const currentViewId = document.querySelector('.main-view-section:not(.hidden)')?.id;
+if (currentViewId) {
+    navigateToView(currentViewId, document.querySelector(`.nav-item[data-target="${currentViewId.replace('-view-content', '')}"]`));
+} else {
+    navigateToView('home-view-content', document.querySelector('.nav-item[data-target="home"]')); 
+}
                     } else {
                         showToast('لا توجد بيانات محفوظة في Firebase لهذا المسار.', 'error');
                         lastFirebaseSyncDateEl.textContent = 'لا توجد بيانات في السحابة';
@@ -3046,77 +3089,49 @@ if (firebaseData.monthlyReports) { await db.monthlyReports.bulkPut(firebaseData.
         }
 
         // --- Statistics Display (Dexie) ---
-        async function displayStats() { /* ... same as original ... */ 
-            try {
-                await db.open();
-                const shoes = await db.shoes.toArray();
-                const sales = await db.sales.toArray();
-                const returns = await db.returns.toArray();
-                const statsSummaryContainer = document.getElementById('stats-summary-cards');
-                const bestSellingList = document.getElementById('best-selling-shoes-list');
+async function displayStats() { 
+    try {
+        await db.open();
+        const shoes = await db.shoes.toArray();
+        const sales = await db.sales.toArray();
+        const returns = await db.returns.toArray();
+        const statsSummaryContainer = document.getElementById('stats-summary-cards');
 
-                statsSummaryContainer.innerHTML = ''; 
-                bestSellingList.innerHTML = '';
+        statsSummaryContainer.innerHTML = ''; 
 
-                const totalShoeTypes = shoes.length;
-                let totalIndividualShoes = 0;
-                shoes.forEach(shoe => {
-                    shoe.sizes.forEach(s => totalIndividualShoes += s.quantity);
-                });
-                const totalSalesTransactions = sales.length;
-                let totalSalesValue = 0;
-                sales.forEach(sale => totalSalesValue += sale.total);
+        const totalShoeTypes = shoes.length;
+        let totalIndividualShoes = 0;
+        shoes.forEach(shoe => {
+            shoe.sizes.forEach(s => totalIndividualShoes += s.quantity);
+        });
+        const totalSalesTransactions = sales.length;
+        let totalSalesValue = 0;
+        sales.forEach(sale => totalSalesValue += sale.total);
 
-                const stats = [
-                    { label: 'أنواع الأحذية', value: totalShoeTypes, icon: 'fa-shoe-prints' },
-                    { label: 'إجمالي القطع المتوفرة', value: totalIndividualShoes, icon: 'fa-boxes-stacked' },
-                    { label: 'إجمالي المبيعات (عمليات)', value: totalSalesTransactions, icon: 'fa-receipt' },
-                    { label: 'إجمالي قيمة المبيعات', value: `${totalSalesValue.toFixed(2)} دج`, icon: 'fa-coins' }
-                ];
+        const stats = [
+            { label: 'أنواع الأحذية', value: totalShoeTypes, icon: 'fa-shoe-prints' },
+            { label: 'إجمالي القطع المتوفرة', value: totalIndividualShoes, icon: 'fa-boxes-stacked' },
+            { label: 'إجمالي المبيعات (عمليات)', value: totalSalesTransactions, icon: 'fa-receipt' },
+            { label: 'إجمالي قيمة المبيعات', value: `${totalSalesValue.toFixed(2)} دج`, icon: 'fa-coins' }
+        ];
 
-                stats.forEach(stat => {
-                    const statCard = document.createElement('div');
-                    statCard.className = 'stat-item';
-                    statCard.innerHTML = `
-                        <span class="stat-item-value"><i class="fas ${stat.icon} text-primary-color mr-2 opacity-75"></i> ${stat.value}</span>
-                        <span class="stat-item-label">${stat.label}</span>
-                    `;
-                    statsSummaryContainer.appendChild(statCard);
-                });
-                
-                displayStockAlerts('stock-alerts-list-area-stats', 'stock-alert-threshold-stats'); 
-                await displayCurrentMonthReport(); 
+        stats.forEach(stat => {
+            const statCard = document.createElement('div');
+            statCard.className = 'stat-item';
+            statCard.innerHTML = `
+                <span class="stat-item-value"><i class="fas ${stat.icon} text-primary-color mr-2 opacity-75"></i> ${stat.value}</span>
+                <span class="stat-item-label">${stat.label}</span>
+            `;
+            statsSummaryContainer.appendChild(statCard);
+        });
+        
+        await displayCurrentMonthReport(); 
 
-                if (sales.length > 0) {
-                    const salesByShoe = {};
-                    sales.forEach(sale => {
-                        salesByShoe[sale.shoeName] = (salesByShoe[sale.shoeName] || 0) + sale.quantity;
-                    });
-                    const sortedBestSelling = Object.entries(salesByShoe)
-                                                .sort(([,a],[,b]) => b-a)
-                                                .slice(0, 5); 
-                    
-                    if (sortedBestSelling.length > 0) {
-                        const ul = document.createElement('ul');
-                        ul.className = 'list-none p-0';
-                        sortedBestSelling.forEach(([name, quantity]) => {
-                            const item = document.createElement('li');
-                            item.className = 'py-2 border-b border-border-color flex justify-between items-center';
-                            item.innerHTML = `<span>${name}</span> <span class="font-semibold text-primary-color">${quantity} قطعة</span>`;
-                            ul.appendChild(item);
-                        });
-                        bestSellingList.appendChild(ul);
-                    } else {
-                         bestSellingList.innerHTML = '<p class="text-text-color-secondary">لا توجد بيانات مبيعات كافية لعرض الأكثر مبيعًا.</p>';
-                    }
-                } else {
-                    bestSellingList.innerHTML = '<p class="text-text-color-secondary">لا توجد مبيعات مسجلة بعد.</p>';
-                }
-            } catch (error) {
-                console.error("Error displaying stats from Dexie:", error);
-                showToast('خطأ في عرض الإحصائيات.', 'error');
-            }
-        }
+    } catch (error) {
+        console.error("Error displaying stats from Dexie:", error);
+        showToast('خطأ في عرض الإحصائيات.', 'error');
+    }
+}
         async function displayCurrentMonthReport() { /* ... same as original ... */ 
             const monthlyReportArea = document.getElementById('monthly-sales-display-area-stats'); 
             monthlyReportArea.innerHTML = '';
@@ -3887,45 +3902,49 @@ if (firebaseData.monthlyReports) { await db.monthlyReports.bulkPut(firebaseData.
         }
 
         // --- View Navigation ---
-        function showView(viewId) { /* ... same as original, adapted for emperor mode UI changes ... */ 
-            const mainViewSections = document.querySelectorAll('.main-view-section');
-            mainViewSections.forEach(section => section.classList.add('hidden'));
-            
-            const targetView = document.getElementById(viewId);
-            if (targetView) {
-                targetView.classList.remove('hidden');
-            }
+        function showView(viewId) { 
+    const mainViewSections = document.querySelectorAll('.main-view-section');
+    mainViewSections.forEach(section => section.classList.add('hidden'));
+    
+    const targetView = document.getElementById(viewId);
+    if (targetView) {
+        targetView.classList.remove('hidden');
+    }
 
-            if (viewId === 'inventory-view-content') {
-                displayAllShoes(currentShoeFilter); 
-            } else if (viewId === 'stats-view-content') {
-                displayStats(); 
-            } else if (viewId === 'delivery-services-view-content') {
-                displayDeliveryPrices(); 
-                document.getElementById('search-delivery-wilaya-input').value = ''; 
-            } else if (viewId === 'suppliers-view-content') {
-                displaySuppliers();
-            }
-             else if (viewId === 'ai-sales-advisor-view-content') {
-                document.getElementById('ai-chat-interface').classList.add('hidden');
-                document.getElementById('ai-analysis-interface').classList.add('hidden');
-                document.getElementById('ai-options-container').classList.remove('hidden');
-                document.getElementById('ai-sales-advisor-response-area').innerHTML = '<p class="text-text-color-secondary p-4 text-center">اضغط على زر "تحليل ذكي" أعلاه للحصول على نصائح...</p>';
-                aiChatHistory = []; 
-                const chatArea = document.getElementById('ai-chat-area'); 
-                chatArea.innerHTML = '<div class="chat-message bot"><span class="sender">المساعد الذكي Pro</span>مرحباً! أنا مساعدك الذكي. كيف يمكنني خدمتك اليوم؟</div>';
-                document.getElementById('ai-chat-input').value = ''; 
-            } else if (viewId === 'returns-view-content') {
-                document.getElementById('return-search-result-area').innerHTML = '<p class="text-text-color-secondary p-3 text-center">أدخل رقم هاتف للبحث أو قم بإضافة عميل جديد إلى القائمة.</p>';
-                document.getElementById('all-returns-list-area').classList.add('hidden'); 
-                editingReturnId = null;
-                document.getElementById('add-return-form').reset();
-                document.getElementById('add-return-form-title').textContent = 'إضافة عميل إلى قائمة الإرجاع';
-                document.getElementById('add-return-submit-button').textContent = 'إضافة إلى القائمة';
-            } else if (viewId === 'daily-sales-confirmation-view-content') {
-                displayPendingSales();
-            }
-        }
+    if (viewId === 'inventory-view-content') {
+        displayAllShoes(currentShoeFilter); 
+    } else if (viewId === 'stats-view-content') {
+        displayStats(); 
+    } else if (viewId === 'other-services-view-content') { 
+        // <-- هذا هو الجزء المضاف والمهم
+        displayStockAlerts('stock-alerts-list-area-stats', 'stock-alert-threshold-stats');
+        displayBestSellingShoes();
+    } else if (viewId === 'delivery-services-view-content') {
+        displayDeliveryPrices(); 
+        document.getElementById('search-delivery-wilaya-input').value = ''; 
+    } else if (viewId === 'suppliers-view-content') {
+        displaySuppliers();
+    }
+     else if (viewId === 'ai-sales-advisor-view-content') {
+        document.getElementById('ai-chat-interface').classList.add('hidden');
+        document.getElementById('ai-analysis-interface').classList.add('hidden');
+        document.getElementById('ai-options-container').classList.remove('hidden');
+        document.getElementById('ai-sales-advisor-response-area').innerHTML = '<p class="text-text-color-secondary p-4 text-center">اضغط على زر "تحليل ذكي" أعلاه للحصول على نصائح...</p>';
+        aiChatHistory = []; 
+        const chatArea = document.getElementById('ai-chat-area'); 
+        chatArea.innerHTML = '<div class="chat-message bot"><span class="sender">المساعد الذكي Pro</span>مرحباً! أنا مساعدك الذكي. كيف يمكنني خدمتك اليوم؟</div>';
+        document.getElementById('ai-chat-input').value = ''; 
+    } else if (viewId === 'returns-view-content') {
+        document.getElementById('return-search-result-area').innerHTML = '<p class="text-text-color-secondary p-3 text-center">أدخل رقم هاتف للبحث أو قم بإضافة عميل جديد إلى القائمة.</p>';
+        document.getElementById('all-returns-list-area').classList.add('hidden'); 
+        editingReturnId = null;
+        document.getElementById('add-return-form').reset();
+        document.getElementById('add-return-form-title').textContent = 'إضافة عميل إلى قائمة الإرجاع';
+        document.getElementById('add-return-submit-button').textContent = 'إضافة إلى القائمة';
+    } else if (viewId === 'daily-sales-confirmation-view-content') {
+        displayPendingSales();
+    }
+}
         window.navigateToView = function(viewId, tabElement) { /* ... same as original ... */ 
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(i => i.classList.remove('active'));

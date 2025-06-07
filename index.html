@@ -1348,8 +1348,8 @@
                             مطور تطبيقات وأنظمة جزائري، شغوف بالتكنولوجيا والبرمجة. أعمل على مشاريع تهدف لنشر المعرفة وتبسيط التقنيات الحديثة.
                         </p>
                         <div class="flex justify-center gap-6 mt-4">
-                            <a href="https://www.facebook.com/बिलal.بورابعة" id="facebook-link" class="social-link" target="_blank"><i class="fab fa-facebook-square"></i> فيسبوك</a>
-                            <a href="https://www.instagram.com/bilalbouabida" id="instagram-link" class="social-link" target="_blank"><i class="fab fa-instagram"></i> انستغرام</a>
+                            <a href="https://www.facebook.com/billel.bouraba" id="facebook-link" class="social-link" target="_blank"><i class="fab fa-facebook-square"></i> فيسبوك</a>
+                            <a href="https://www.instagram.com/billel_bouraba" id="instagram-link" class="social-link" target="_blank"><i class="fab fa-instagram"></i> انستغرام</a>
                         </div>
                     </div>
                      <div class="back-button-container">
@@ -1729,17 +1729,6 @@
         let currentUserId = null; 
         let isEmperorModeActive = false;
 
-        // Obfuscation for the Emperor Code - NOTE: Client-side obfuscation offers limited security.
-        // The original code "55040" is derived here.
-        const EMPEROR_PART_A = 50000;
-        const EMPEROR_PART_B = 5000;
-        const EMPEROR_PART_C = 40;
-        const EMPEROR_CODE = (EMPEROR_PART_A + EMPEROR_PART_B + EMPEROR_PART_C).toString(); // "55040"
-        
-        const EMPEROR_DATA_ID = `emperor_${EMPEROR_CODE}`;
-        const EMPEROR_STORAGE_KEY = 'shoesManager_emperorCodeActive_v1';
-
-
         // Dexie DB instance
 // استبدل كل تعريفات الـ versions القديمة بهذا التعريف الجديد
         const db = new Dexie("ShoesManagerDB_v6"); // قمنا بتغيير الاسم لضمان التحديث
@@ -1899,47 +1888,63 @@
         }
         
 
-        // --- Firebase Auth Event Listener ---
-        onAuthStateChanged(auth, async (user) => {
-            currentFirebaseUser = user;
-            if (isEmperorModeActive) {
-                // Emperor mode handles its own UI, ensure Firebase auth state doesn't override it
-                console.log("Emperor mode active, Firebase user state:", user ? user.uid : "No user");
-                if (!user) { // If emperor mode is active but somehow user got signed out (e.g. token expired)
-                    await initializeAuth(); // Re-authenticate anonymously
-                }
-                return; 
-            }
+// (استبدال) --- Firebase Auth Event Listener (المتحكم الرئيسي الجديد) ---
 
-            // Regular user auth UI updates (if not in Emperor mode)
-            if (user) {
-                console.log("User is signed in (regular mode):", user);
-                currentUserId = user.uid; 
-                userStatusDiv.innerHTML = `
-                    <span class="text-xs mr-2">مرحباً، ${user.displayName || user.email}</span>
-                    <button id="logout-button" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الخروج</button>
-                `;
-                document.getElementById('logout-button').addEventListener('click', handleLogout);
-                if(authActionButton) authActionButton.style.display = 'none'; // Hide main login button if user logged in
+let authInitialized = false; // متغير جديد لتتبع أول عملية تحقق
 
-                firebaseSyncSection.classList.remove('hidden');
-                currentUserIdDisplay.textContent = currentUserId;
-                loadLastSyncDateFromFirebase();
-            } else {
-                console.log("User is signed out (regular mode).");
-                currentUserId = crypto.randomUUID(); 
-                userStatusDiv.innerHTML = `<button id="login-modal-button-header" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الدخول</button>`;
-                const loginBtnHeader = document.getElementById('login-modal-button-header');
-                if (loginBtnHeader) loginBtnHeader.addEventListener('click', () => openAuthModal(true));
-                if(authActionButton) authActionButton.style.display = 'inline-flex'; 
+onAuthStateChanged(auth, async (user) => {
+    currentFirebaseUser = user;
 
+    // هذا الجزء سيعمل فقط في المرة الأولى التي يتم فيها تحميل الصفحة
+    if (!authInitialized) {
+        authInitialized = true; // نمنع تشغيله مرة أخرى
 
-                firebaseSyncSection.classList.add('hidden');
-                currentUserIdDisplay.textContent = 'N/A (غير مسجل)';
-                lastFirebaseSyncDateEl.textContent = 'لم تتم المزامنة بعد (يتطلب تسجيل الدخول)';
-            }
-            closeModal('auth-modal'); 
-        });
+        // إخفاء شاشة البداية وإظهار التطبيق
+        const splashScreen = document.getElementById('splash-screen');
+        const mainAppContainer = document.getElementById('main-app');
+        splashScreen.classList.add('hidden');
+        mainAppContainer.style.display = 'flex';
+
+        // افتح قاعدة البيانات المحلية هنا
+        try {
+            await db.open(); 
+            console.log("Dexie Database opened successfully.");
+            await getStoredDeliveryPrices(); 
+        } catch (error) {
+            console.error("Failed to open Dexie database:", error);
+            showToast('فشل فتح قاعدة البيانات المحلية. بعض الميزات قد لا تعمل.', 'error');
+        }
+
+        // انتقل إلى الواجهة الرئيسية
+        navigateToView('home-view-content', document.querySelector('.nav-item[data-target="home"]'));
+    }
+
+    // هذا الكود سيعمل دائمًا لتحديث واجهة المستخدم عند تغير حالة الدخول
+    if (user) {
+        console.log("User is signed in:", user);
+        currentUserId = user.uid; 
+        userStatusDiv.innerHTML = `
+            <span class="text-xs mr-2">مرحباً، ${user.displayName || user.email}</span>
+            <button id="logout-button" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الخروج</button>
+        `;
+        document.getElementById('logout-button').addEventListener('click', handleLogout);
+
+        firebaseSyncSection.classList.remove('hidden');
+        currentUserIdDisplay.textContent = currentUserId;
+        loadLastSyncDateFromFirebase();
+    } else {
+        console.log("User is signed out.");
+        currentUserId = null; // نضع القيمة null بدلاً من قيمة عشوائية
+        userStatusDiv.innerHTML = `<button id="login-modal-button-header" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الدخول</button>`;
+        document.getElementById('login-modal-button-header').addEventListener('click', () => openAuthModal(true));
+
+        firebaseSyncSection.classList.add('hidden');
+        currentUserIdDisplay.textContent = 'N/A (غير مسجل)';
+        lastFirebaseSyncDateEl.textContent = 'يتطلب تسجيل الدخول للمزامنة';
+    }
+
+    closeModal('auth-modal'); 
+});
         
         async function initializeAuth() { // For anonymous or custom token sign-in
             try {
@@ -2126,14 +2131,14 @@ async function displayBestSellingShoes() {
             }
         }
 
-        function getFirestoreDataPath() {
-            if (isEmperorModeActive) {
-                return `/artifacts/${appId}/sharedData/${EMPEROR_DATA_ID}/appData/mainStore`;
-            } else if (currentFirebaseUser && currentUserId) { // currentUserId is auth.currentUser.uid
-                return `/artifacts/${appId}/users/${currentUserId}/appData/mainStore`;
-            }
-            return null; // Should not happen if auth is initialized (at least anonymous)
-        }
+// (الكود الجديد الصحيح)
+function getFirestoreDataPath() {
+    if (currentFirebaseUser && currentUserId) {
+        // نرجع مصفوفة من الأجزاء بدلاً من نص واحد
+        return ['artifacts', appId, 'users', currentUserId, 'appData', 'mainStore'];
+    }
+    return null;
+}
 
         async function backupDataToFirestore() {
             const dataPath = getFirestoreDataPath();
@@ -2171,7 +2176,8 @@ async function displayBestSellingShoes() {
             messageModalButtons.innerHTML = `<div class="loader mx-auto"></div>`;
 
             try {
-                const dataDocRef = doc(dbFirebase, dataPath);
+                // (السطر الجديد الصحيح)
+                const dataDocRef = doc(dbFirebase, ...dataPath);
                 await setDoc(dataDocRef, { ...localData, lastSync: serverTimestamp() });
                 
                 lastFirebaseSyncDateEl.textContent = new Date().toLocaleString('ar-EG');
@@ -2214,7 +2220,8 @@ async function displayBestSellingShoes() {
                 loadingButtons.innerHTML = `<div class="loader mx-auto"></div>`;
 
                 try {
-                    const dataDocRef = doc(dbFirebase, dataPath);
+                    // (السطر الجديد الصحيح)
+                    const dataDocRef = doc(dbFirebase, ...dataPath);
                     const docSnap = await getDoc(dataDocRef);
 
                     if (docSnap.exists()) {
@@ -2340,7 +2347,8 @@ if (currentViewId) {
                  return;
             }
             try {
-                const dataDocRef = doc(dbFirebase, dataPath);
+                // (السطر الجديد الصحيح)
+                const dataDocRef = doc(dbFirebase, ...dataPath);
                 const docSnap = await getDoc(dataDocRef);
                 if (docSnap.exists() && docSnap.data().lastSync && docSnap.data().lastSync.toDate) {
                     lastFirebaseSyncDateEl.textContent = docSnap.data().lastSync.toDate().toLocaleString('ar-EG');
@@ -4336,37 +4344,42 @@ async function handleEditDeliveryPriceForm(event) {
             };
             reader.readAsText(file);
         }
-        async function confirmResetApp() { /* ... same as original ... */ 
-            showModal('message-modal', `تحذير! هل أنت متأكد أنك تريد إعادة ضبط التطبيق بالكامل؟ سيتم حذف جميع الأحذية والمبيعات والإرجاعات المحلية بشكل نهائي ولا يمكن التراجع عن هذا الإجراء.`);
-            const messageModalButtons = document.getElementById('message-modal-buttons');
-            messageModalButtons.innerHTML = `
-                <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
-                <button id="confirm-reset-action" class="app-button app-button-danger">نعم، قم بإعادة الضبط</button>
-            `;
-            document.getElementById('confirm-reset-action').onclick = async () => {
-                try {
-                    await db.open();
-                    await Promise.all([
-                        db.shoes.clear(), db.sales.clear(), db.returns.clear(),
-                        db.pendingSales.clear(), db.deliveryPrices.clear(),
-                        db.suppliers.clear(), db.monthlyReports.clear()
-                    ]);
-                    localStorage.removeItem(THEME_STORAGE_KEY); 
-                    localStorage.removeItem(EMPEROR_STORAGE_KEY); // Clear emperor mode flag on reset
-                    
-                    await storeDeliveryPrices(getDefaultWilayaPrices()); 
-                    setTheme('light'); 
-                    closeModal('message-modal'); 
-                    showToast('تمت إعادة ضبط التطبيق بنجاح. سيتم تحديث الواجهة.');
-                    // Force reload or redirect to secret code entry if that's desired after reset
-                    window.location.reload(); // Easiest way to force re-check of emperor status
-                } catch (dbError) {
-                    console.error("Error resetting Dexie database:", dbError);
-                    showToast('فشل إعادة ضبط قاعدة البيانات المحلية.', 'error');
-                    closeModal('message-modal');
-                }
-            };
+// --- الكود بعد التعديل (النسخة الصحيحة) ---
+
+async function confirmResetApp() { 
+    showModal('message-modal', `تحذير! هل أنت متأكد أنك تريد إعادة ضبط التطبيق بالكامل؟ ...`);
+    const messageModalButtons = document.getElementById('message-modal-buttons');
+    messageModalButtons.innerHTML = `
+        <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
+        <button id="confirm-reset-action" class="app-button app-button-danger">نعم، قم بإعادة الضبط</button>
+    `;
+    document.getElementById('confirm-reset-action').onclick = async () => {
+        try {
+            await db.open();
+            await Promise.all([
+                db.shoes.clear(), db.sales.clear(), db.returns.clear(),
+                db.pendingSales.clear(), db.deliveryPrices.clear(),
+                db.suppliers.clear(), db.monthlyReports.clear()
+            ]);
+            localStorage.removeItem(THEME_STORAGE_KEY); 
+
+            await storeDeliveryPrices(getDefaultWilayaPrices()); 
+            setTheme('light'); 
+            closeModal('message-modal'); 
+            showToast('تمت إعادة ضبط التطبيق بنجاح. سيتم تحديث الواجهة.');
+
+            // ▼▼▼ هذا هو التعديل الذي قمنا به ▼▼▼
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500); // ننتظر 1.5 ثانية قبل إعادة التحميل
+
+        } catch (dbError) {
+            console.error("Error resetting Dexie database:", dbError);
+            showToast('فشل إعادة ضبط قاعدة البيانات المحلية.', 'error');
+            closeModal('message-modal');
         }
+    };
+}
         // أضف هذه الدالة الجديدة مع بقية الدوال
         function showSaleDetailsInModal(sale) {
             const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -4388,29 +4401,53 @@ async function handleEditDeliveryPriceForm(event) {
             showModal('message-modal');
         }
 
-        // --- Event Listeners and Initialization ---
-        window.addEventListener('load', async () => { 
-            // Initialize Firebase Auth (anonymous or custom token)
-            await initializeAuth(); 
+       // (استبدال) --- Event Listeners and Initialization ---
+window.addEventListener('load', async () => { 
+    // سيقوم onAuthStateChanged بالباقي
+    console.log("Page loaded. Auth state listener is now active.");
 
-            // Check for Emperor Mode
-            if (localStorage.getItem(EMPEROR_STORAGE_KEY) === 'true') {
-                activateEmperorMode();
-            } else {
-                secretCodeModalOverlay.classList.add('visible');
-                secretCodeModalOverlay.querySelector('#secret-code-modal-content').style.opacity = 1; // Make sure content is visible
-                mainAppContainer.style.display = 'none'; // Keep main app hidden
+    // ربط الأحداث التي لا تعتمد على حالة الدخول
+    const currentDateEl = document.getElementById('current-date');
+
+    document.getElementById('add-size-button').addEventListener('click', () => addSizeQuantityPair('', ''));
+    document.getElementById('generate-description-button').addEventListener('click', generateShoeDescription);
+    // ... (بقية الأحداث تبقى كما هي)
+    // تأكد من أن كل الأحداث الأخرى (event listeners) موجودة هنا
+
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' }; 
+    currentDateEl.textContent = `تاريخ اليوم: ${today.toLocaleDateString('ar-EG', options)}`; 
+
+    // الكود الخاص بإغلاق النوافذ عند النقر خارجها
+    document.querySelectorAll('.modal-overlay').forEach(modalOverlay => {
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) { closeModal(modalOverlay.id); }
+        });
+    });
+
+    // الكود الخاص بأزرار التنقل السفلية
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.classList.contains('active')) { return; } 
+            const target = item.dataset.target;
+            let viewIdToNavigate = '';
+            switch(target) {
+                case 'home': viewIdToNavigate = 'home-view-content'; break;
+                case 'about': viewIdToNavigate = 'about-app-view-content'; break;
+                case 'stats': viewIdToNavigate = 'stats-view-content'; break;
+                case 'settings': viewIdToNavigate = 'settings-view-content'; break;
+                default: viewIdToNavigate = 'home-view-content'; 
             }
-            
-            // Open Dexie DB after initial auth and emperor check
-            try {
-                await db.open(); 
-                console.log("Dexie Database opened successfully.");
-                await getStoredDeliveryPrices(); 
-            } catch (error) {
-                console.error("Failed to open Dexie database:", error);
-                showToast('فشل فتح قاعدة البيانات المحلية. بعض الميزات قد لا تعمل.', 'error');
-            }
+            navigateToView(viewIdToNavigate, item);
+        });
+    });
+
+    // ربط بقية الأحداث... (تأكد من وجود هذه الأكواد)
+    document.getElementById('add-shoe-form').addEventListener('submit', saveShoeData);
+    document.getElementById('edit-delivery-price-form').addEventListener('submit', handleEditDeliveryPriceForm);
+    // ... وهكذا مع بقية الـ event listeners
+});
 
             const currentDateEl = document.getElementById('current-date');
             
@@ -4544,14 +4581,6 @@ async function handleEditDeliveryPriceForm(event) {
             // Splash screen logic
             setTimeout(() => {
                 splashScreen.classList.add('hidden');
-                // The decision to show secret code modal or app is now handled by emperor mode check
-                if (!isEmperorModeActive) {
-                     // If emperor mode not active from localStorage, secret code modal should be visible
-                    secretCodeModalOverlay.classList.add('visible');
-                    secretCodeModalOverlay.querySelector('#secret-code-modal-content').style.opacity = 1;
-                } else {
-                    // If emperor mode is active, main app should already be visible via activateEmperorMode()
-                }
             }, 1200); 
 
             const navItems = document.querySelectorAll('.nav-item');
@@ -4571,7 +4600,7 @@ async function handleEditDeliveryPriceForm(event) {
                     navigateToView(viewIdToNavigate, item);
                 });
             });
-        });
+        
         document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(button => {
     button.addEventListener('click', function() {
         // تحديث الفلتر الحالي

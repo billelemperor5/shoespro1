@@ -2033,41 +2033,38 @@ async function displayBestSellingShoes() {
     }
 }
 
-        if (signupForm) {
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (isEmperorModeActive) return;
-                clearAuthError();
-                const firstName = document.getElementById('signup-firstname').value;
-                const lastName = document.getElementById('signup-lastname').value;
-                const email = document.getElementById('signup-email').value;
-                const password = document.getElementById('signup-password').value;
-                const confirmPassword = document.getElementById('signup-confirm-password').value;
+       if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const firstName = document.getElementById('signup-firstname').value;
+        const lastName = document.getElementById('signup-lastname').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        // ... (بقية كود التحقق) ...
 
-                if (password !== confirmPassword) {
-                    showAuthError('كلمتا المرور غير متطابقتين.'); return;
-                }
-                if (password.length < 6) {
-                    showAuthError('يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.'); return;
-                }
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
 
-                try {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
-                    
-                    // Store additional user info in Firestore (user-specific path)
-                    const userDocRefPath = `/artifacts/${appId}/users/${userCredential.user.uid}/profile/info`;
-                    const userDocRef = doc(dbFirebase, userDocRefPath);
-                    await setDoc(userDocRef, {
-                        firstName: firstName, lastName: lastName, email: email, createdAt: serverTimestamp()
-                    });
-                    showToast('تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success');
-                } catch (error) {
-                    console.error("Signup error:", error);
-                    showAuthError(getFirebaseErrorMessage(error));
-                }
-            });
+            // ... (كود حفظ البيانات الإضافية في Firestore) ...
+
+            showToast('تم إنشاء الحساب وتسجيل الدخول بنجاح!', 'success');
+
+            // ▼▼▼ ابدأ الإضافة من هنا ▼▼▼
+            // تحديث الواجهة يدويًا بالاسم الصحيح
+            userStatusDiv.innerHTML = `
+                <span class="text-xs mr-2">مرحباً، ${firstName} ${lastName}</span>
+                <button id="logout-button" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الخروج</button>
+            `;
+            document.getElementById('logout-button').addEventListener('click', handleLogout);
+            // ▲▲▲ انتهت الإضافة هنا ▲▲▲
+
+        } catch (error) {
+            console.error("Signup error:", error);
+            showAuthError(getFirebaseErrorMessage(error));
         }
+    });
+}
 
         async function handleLogout() {
             if (isEmperorModeActive) return; // Logout not applicable in emperor mode this way

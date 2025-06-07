@@ -2960,7 +2960,12 @@ async function displayPendingSales() {
         const pendingSalesArea = document.getElementById('pending-sales-area');
         pendingSalesArea.innerHTML = '';
 
-        // --- منطق التصفية الذي أضفناه سابقاً ---
+        // --- إضافة جديدة: جلب كل الأحذية لإنشاء خريطة للصور ---
+        const shoes = await db.shoes.toArray();
+        const shoesMap = new Map(shoes.map(shoe => [shoe.id, shoe]));
+        // ----------------------------------------------------
+
+        // --- منطق التصفية يبقى كما هو ---
         let filteredSales = pendingSales;
         if (currentPendingSaleFilter === 'pending') {
             filteredSales = pendingSales.filter(sale => !sale.shippingConfirmed);
@@ -2984,15 +2989,16 @@ async function displayPendingSales() {
                 card.classList.add('shipped');
             }
 
-            // ===== هذا هو الجزء الذي تم تعديله =====
-            // الآن نستخدم الصورة المحفوظة مع البيعة مباشرة
-            const imageToDisplay = sale.shoeImage; 
+            // ===== هذا هو الجزء الذي تم تعديله ليصبح أكثر ذكاءً =====
+            const correspondingShoe = shoesMap.get(sale.shoeId);
+            // نعتمد على الصورة المحفوظة، وإذا لم توجد، نبحث في بيانات الحذاء الأصلية
+            const imageToDisplay = sale.shoeImage || (correspondingShoe ? correspondingShoe.imageUrl : null);
             
             let imageHTML = `<div class="w-24 h-24 bg-gray-200 rounded-md mb-3 flex items-center justify-center text-gray-400 text-sm shrink-0">لا توجد صورة</div>`;
             if (imageToDisplay) {
                 imageHTML = `<div class="w-24 h-24 rounded-md mb-3 overflow-hidden flex items-center justify-center shrink-0"><img src="${imageToDisplay}" alt="${sale.shoeName}" class="w-full h-full object-cover"></div>`;
             }
-            // =======================================
+            // =======================================================
 
             const shippingButtonText = sale.shippingConfirmed ? 'تم تأكيد الشحن' : 'تأكيد الشحن';
             const shippingButtonDisabled = sale.shippingConfirmed ? 'disabled' : '';

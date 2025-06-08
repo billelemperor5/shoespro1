@@ -1680,6 +1680,17 @@
         </div>
     </div>
 
+    <div id="user-info-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="user-info-welcome-title" class="modal-title">ملف المستخدم</h3>
+        <div id="user-info-details" class="text-right text-base mt-4 mb-6">
+            </div>
+        <div class="flex flex-col items-center gap-y-3">
+            <button id="logout-button-modal" class="app-button app-button-danger w-full sm:w-auto">تسجيل الخروج</button>
+            <button type="button" onclick="closeModal('user-info-modal')" class="app-button app-button-secondary w-full sm:w-auto">إغلاق</button>
+        </div>
+    </div>
+</div>
 
     <script type="module">
         // Import Firebase modules
@@ -1920,18 +1931,23 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     // هذا الكود سيعمل دائمًا لتحديث واجهة المستخدم عند تغير حالة الدخول
-    if (user) {
-        console.log("User is signed in:", user);
-        currentUserId = user.uid; 
-        userStatusDiv.innerHTML = `
-            <span class="text-xs mr-2">مرحباً، ${user.displayName || user.email}</span>
-            <button id="logout-button" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الخروج</button>
-        `;
-        document.getElementById('logout-button').addEventListener('click', handleLogout);
+if (user) {
+    console.log("User is signed in:", user);
+    currentUserId = user.uid;
 
-        firebaseSyncSection.classList.remove('hidden');
-        currentUserIdDisplay.textContent = currentUserId;
-        loadLastSyncDateFromFirebase();
+    // إنشاء زر جديد يحمل اسم المستخدم ويفتح نافذة المعلومات
+    userStatusDiv.innerHTML = `
+        <button id="user-profile-button" class="app-button app-button-secondary text-sm px-4 py-2">
+            <i class="fas fa-user-circle mr-2"></i>
+            <span>${user.displayName || user.email}</span>
+        </button>
+    `;
+    document.getElementById('user-profile-button').addEventListener('click', openUserInfoModal);
+
+    firebaseSyncSection.classList.remove('hidden');
+    currentUserIdDisplay.textContent = currentUserId;
+    loadLastSyncDateFromFirebase();
+
     } else {
         console.log("User is signed out.");
         currentUserId = null; // نضع القيمة null بدلاً من قيمة عشوائية
@@ -2066,17 +2082,17 @@ async function displayBestSellingShoes() {
     });
 }
 
-        async function handleLogout() {
-            if (isEmperorModeActive) return; // Logout not applicable in emperor mode this way
-            try {
-                await signOut(auth);
-                showToast('تم تسجيل الخروج بنجاح.', 'success');
-                // onAuthStateChanged will handle UI updates
-            } catch (error) {
-                console.error("Logout error:", error);
-                showToast('خطأ أثناء تسجيل الخروج.', 'error');
-            }
-        }
+// --- الكود بعد التعديل ---
+async function handleLogout() {
+    try {
+        await signOut(auth);
+        showToast('تم تسجيل الخروج بنجاح.', 'success');
+        closeModal('user-info-modal'); // <-- هذا هو السطر المضاف
+    } catch (error) {
+        console.error("Logout error:", error);
+        showToast('خطأ أثناء تسجيل الخروج.', 'error');
+    }
+}
 
         function getFirebaseErrorMessage(error) {
             // ... (same as original)
@@ -4611,6 +4627,28 @@ window.addEventListener('load', async () => {
         displayPendingSales();
     });
 });
+// (إضافة جديدة) دالة لفتح نافذة معلومات المستخدم
+function openUserInfoModal() {
+    if (!currentFirebaseUser) return; // تحقق من وجود مستخدم
+
+    const welcomeTitle = document.getElementById('user-info-welcome-title');
+    const detailsArea = document.getElementById('user-info-details');
+
+    const user = currentFirebaseUser;
+
+    // تعبئة البيانات
+    welcomeTitle.textContent = `مرحباً بك، ${user.displayName || 'أيها المستخدم'}`;
+    detailsArea.innerHTML = `
+        <p class="mb-2"><strong>الاسم الكامل:</strong> ${user.displayName || 'غير متوفر'}</p>
+        <p class="mb-2"><strong>البريد الإلكتروني:</strong> ${user.email || 'غير متوفر'}</p>
+        <p class="text-xs text-text-color-secondary"><strong>معرف المستخدم:</strong> ${user.uid}</p>
+    `;
+
+    // ربط زر تسجيل الخروج داخل النافذة
+    document.getElementById('logout-button-modal').onclick = handleLogout;
+
+    showModal('user-info-modal');
+}
     </script>
 </body>
 </html>

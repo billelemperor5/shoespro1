@@ -3195,48 +3195,56 @@ document.getElementById('sell-shoe-form').addEventListener('submit', async funct
 
 // (الكود النهائي الكامل لهذه الميزة)
 // (استبدال) --- دالة عرض المبيعات المعلقة مع ترقيم الصفحات ---
+// (الكود النهائي المصحح) --- دالة عرض المبيعات المعلقة مع ترقيم الصفحات ---
+// (الكود النهائي المصحح والأكثر استقرارًا)
 async function displayPendingSales(options = {}, page = 1) {
     const { dateFilter = null } = options;
-    const salesPerPage = 10; // عدد المبيعات المعلقة في كل صفحة
+    const salesPerPage = 10;
     const pendingSalesArea = document.getElementById('pending-sales-area');
+    pendingSalesArea.innerHTML = '<div class="text-center py-10"><div class="loader mx-auto"></div></div>';
 
     try {
         await db.open();
-        let query;
-        let baseSales;
 
-        // بناء الاستعلام الأولي
+        // --- بداية الإصلاح الرئيسي ---
+
+        // خطوة 1: جلب كل البيانات المعلقة مرة واحدة لتجنب أخطاء قاعدة البيانات
+        const allPendingSales = await db.pendingSales.toArray();
+        let salesToFilter = allPendingSales;
+
+        // خطوة 2: تطبيق الفلترة المطلوبة بأمان باستخدام JavaScript
         if (dateFilter) {
-            const allPendingSales = await db.pendingSales.toArray();
-            baseSales = allPendingSales.filter(sale => sale.shippingConfirmed === true && sale.sellDate === dateFilter);
-            query = db.pendingSales.where('id').anyOf(baseSales.map(s => s.id));
+            salesToFilter = allPendingSales.filter(sale => sale.shippingConfirmed === true && sale.sellDate === dateFilter);
         } else {
             if (currentPendingSaleFilter === 'pending') {
-                query = db.pendingSales.where('shippingConfirmed').equals(false);
+                // هذا الشرط يغطي الحالات التي تكون فيها القيمة false أو غير موجودة (undefined)
+                salesToFilter = allPendingSales.filter(sale => !sale.shippingConfirmed);
             } else if (currentPendingSaleFilter === 'shipped') {
-                query = db.pendingSales.where('shippingConfirmed').equals(true);
-            } else {
-                query = db.pendingSales.toCollection();
+                salesToFilter = allPendingSales.filter(sale => sale.shippingConfirmed === true);
             }
+            // إذا كان الفلتر 'all'، فإن salesToFilter تبقى كل البيانات، وهو المطلوب
         }
-        
-        const totalSales = await query.count();
+
+        // خطوة 3: ترتيب النتائج وتطبيق الترقيم عليها
+        salesToFilter.sort((a, b) => new Date(b.sellDate) - new Date(a.sellDate));
+
+        const totalSales = salesToFilter.length;
         const totalPages = Math.ceil(totalSales / salesPerPage);
+        const startIndex = (page - 1) * salesPerPage;
+        const salesToDisplay = salesToFilter.slice(startIndex, startIndex + salesPerPage);
 
-        const filteredSales = await query.reverse() // لعرض الأحدث أولاً
-                                         .offset((page - 1) * salesPerPage)
-                                         .limit(salesPerPage)
-                                         .toArray();
-        
-        pendingSalesArea.innerHTML = '';
+        // --- نهاية الإصلاح الرئيسي ---
 
-        if (filteredSales.length === 0) {
+
+        pendingSalesArea.innerHTML = ''; // مسح مؤشر التحميل
+
+        if (salesToDisplay.length === 0) {
             let message = "لا توجد مبيعات تطابق هذا الفلتر.";
             if (dateFilter) { message = `لا توجد مبيعات مشحونة للتاريخ المحدد: ${dateFilter}`; }
             else {
-                 if (currentPendingSaleFilter === 'pending') message = "لا توجد عمليات معلقة.";
-                 else if (currentPendingSaleFilter === 'shipped') message = "لا توجد عمليات تم تأكيد شحنها.";
-                 else if (currentPendingSaleFilter === 'all') message = "لا توجد مبيعات معلقة حاليًا.";
+                if (currentPendingSaleFilter === 'pending') message = "لا توجد عمليات معلقة.";
+                else if (currentPendingSaleFilter === 'shipped') message = "لا توجد عمليات تم تأكيد شحنها.";
+                else if (currentPendingSaleFilter === 'all') message = "لا توجد مبيعات معلقة حاليًا.";
             }
             pendingSalesArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">${message}</p>`;
             return;
@@ -3244,7 +3252,7 @@ async function displayPendingSales(options = {}, page = 1) {
 
         const shoesMap = new Map((await db.shoes.toArray()).map(shoe => [shoe.id, shoe]));
 
-        filteredSales.forEach(sale => {
+        salesToDisplay.forEach(sale => {
             const card = document.createElement('div');
             card.className = 'data-card pending-sale-card p-4 mb-4';
             if (sale.shippingConfirmed) { card.classList.add('shipped'); }
@@ -3291,7 +3299,7 @@ async function displayPendingSales(options = {}, page = 1) {
             pendingSalesArea.appendChild(card);
         });
 
-        // إضافة أزرار التنقل بين الصفحات للمبيعات المعلقة
+        // إضافة أزرار التنقل بين الصفحات
         if (totalPages > 1) {
             const paginationContainer = document.createElement('div');
             paginationContainer.className = 'flex justify-center items-center gap-3 mt-8';
@@ -3319,6 +3327,7 @@ async function displayPendingSales(options = {}, page = 1) {
     } catch (error) {
         console.error("Error displaying pending sales:", error);
         showToast('خطأ في عرض المبيعات المعلقة.', 'error');
+        pendingSalesArea.innerHTML = `<p class="text-center text-red-500 mt-6 text-lg">حدث خطأ حرج. يرجى إعادة تحميل الصفحة.</p>`;
     }
 }
 

@@ -2874,68 +2874,113 @@ let currentPendingSaleFilter = 'all'; // فلتر المبيعات المعلق�
                 processSaving(imageDataUrl); 
             }
         }
-        async function displayAllShoes(filterCategory = 'all') { /* ... same as original ... */ 
-            currentShoeFilter = filterCategory; 
-            try {
-                await db.open();
-                let shoesArray;
+// (استبدال) --- دالة عرض المخزون مع ترقيم الصفحات ---
+async function displayAllShoes(filterCategory = 'all', page = 1) {
+    currentShoeFilter = filterCategory;
+    const shoesPerPage = 12; // يمكنك تغيير هذا الرقم (مثلاً 10 أو 20)
+    const displayArea = document.getElementById('shoe-display-area');
 
-                if (filterCategory !== 'all') {
-                    shoesArray = await db.shoes.where('category').equals(filterCategory).toArray();
-                } else {
-                    shoesArray = await db.shoes.toArray();
-                }
-                
-                shoesArray.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate));
-                const shoes = shoesArray;
-                
-                const displayArea = document.getElementById('shoe-display-area');
-                displayArea.innerHTML = ''; 
-                if (shoes.length === 0) {
-                    displayArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">لا توجد أحذية تطابق هذا التصنيف "${filterCategory === 'all' ? 'الكل' : filterCategory}".</p>`;
-                } else {
-                    const listContainer = document.createElement('div');
-                    listContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4';
-                    shoes.forEach(shoe => {
-                        const card = document.createElement('div');
-                        card.className = 'shoe-card'; 
-                        card.onclick = () => openShoeDetailsModal(shoe.id); 
-                        
-                        let imageHTML = `<div class="shoe-card-image-container"><span class="no-image-text">لا توجد صورة</span></div>`;
-                        if (shoe.imageUrl) {
-                            imageHTML = `<div class="shoe-card-image-container"><img src="${shoe.imageUrl}" alt="${shoe.name}"></div>`;
-                        }
-                        
-                        card.innerHTML = `
-                            ${imageHTML}
-                            <h4 title="${shoe.name}">${shoe.name}</h4>
-                            <p class="text-xs text-gray-500">${shoe.category || 'غير مصنف'}</p>
-<p class="date-added">أضيف في: ${new Date(shoe.addedDate).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
-                            <p class="sizes-info">
-                                <span class="font-medium">المقاسات: </span>
-                                <span class="text-gray-600">${shoe.sizes.map(s => `${s.size} (${s.quantity})`).join(', ') || 'N/A'}</span>
-                            </p>
-                            <div class="shoe-card-actions">
-                                 <button onclick="event.stopPropagation(); openAddShoeModal('${shoe.id}')" class="app-button edit-btn"><i class="fas fa-edit mr-1.5"></i> تعديل</button>
-                                 <button onclick="event.stopPropagation(); confirmDeleteShoe('${shoe.id}')" class="app-button delete-btn"><i class="fas fa-trash-alt mr-1.5"></i> حذف</button>
-                            </div>
-                        `; 
-                        listContainer.appendChild(card);
-                    });
-                    displayArea.appendChild(listContainer);
-                }
+    try {
+        await db.open();
+        let query;
 
-                document.querySelectorAll('#shoe-filter-buttons .filter-button').forEach(btn => {
-                    btn.classList.remove('active'); 
-                    if (btn.dataset.category === filterCategory) {
-                        btn.classList.add('active');
-                    }
-                });
-            } catch (error) {
-                console.error("Error displaying shoes from Dexie:", error);
-                showToast('خطأ في عرض الأحذية.', 'error');
-            }
+        // بناء الاستعلام حسب التصنيف
+        if (filterCategory !== 'all') {
+            query = db.shoes.where('category').equals(filterCategory);
+        } else {
+            query = db.shoes.toCollection();
         }
+
+        // الحصول على العدد الإجمالي للنتائج لحساب الصفحات
+        const totalShoes = await query.count();
+        const totalPages = Math.ceil(totalShoes / shoesPerPage);
+
+        // جلب بيانات الصفحة الحالية فقط باستخدام offset و limit
+        const shoesArray = await query.reverse() // لعرض الأحدث أولاً
+                                      .offset((page - 1) * shoesPerPage)
+                                      .limit(shoesPerPage)
+                                      .toArray();
+
+        displayArea.innerHTML = ''; // مسح المحتوى القديم
+
+        if (shoesArray.length === 0) {
+            displayArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">لا توجد أحذية تطابق هذا التصنيف "${filterCategory === 'all' ? 'الكل' : filterCategory}".</p>`;
+        } else {
+            const listContainer = document.createElement('div');
+            listContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4';
+            shoesArray.forEach(shoe => {
+                const card = document.createElement('div');
+                card.className = 'shoe-card';
+                card.onclick = () => openShoeDetailsModal(shoe.id);
+
+                let imageHTML = `<div class="shoe-card-image-container"><span class="no-image-text">لا توجد صورة</span></div>`;
+                if (shoe.imageUrl) {
+                    imageHTML = `<div class="shoe-card-image-container"><img src="${shoe.imageUrl}" alt="${shoe.name}"></div>`;
+                }
+
+                card.innerHTML = `
+                    ${imageHTML}
+                    <h4 title="${shoe.name}">${shoe.name}</h4>
+                    <p class="text-xs text-gray-500">${shoe.category || 'غير مصنف'}</p>
+                    <p class="date-added">أضيف في: ${new Date(shoe.addedDate).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
+                    <p class="sizes-info">
+                        <span class="font-medium">المقاسات: </span>
+                        <span class="text-gray-600">${shoe.sizes.map(s => `${s.size} (${s.quantity})`).join(', ') || 'N/A'}</span>
+                    </p>
+                    <div class="shoe-card-actions">
+                         <button onclick="event.stopPropagation(); openAddShoeModal('${shoe.id}')" class="app-button edit-btn"><i class="fas fa-edit mr-1.5"></i> تعديل</button>
+                         <button onclick="event.stopPropagation(); confirmDeleteShoe('${shoe.id}')" class="app-button delete-btn"><i class="fas fa-trash-alt mr-1.5"></i> حذف</button>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+            displayArea.appendChild(listContainer);
+
+            // ▼▼▼ بداية إضافة أزرار التنقل بين الصفحات ▼▼▼
+            if (totalPages > 1) {
+                const paginationContainer = document.createElement('div');
+                paginationContainer.className = 'flex justify-center items-center gap-3 mt-8';
+
+                // زر "السابق"
+                if (page > 1) {
+                    const prevButton = document.createElement('button');
+                    prevButton.className = 'app-button app-button-secondary';
+                    prevButton.innerHTML = '<i class="fas fa-arrow-right ml-2"></i> السابق';
+                    prevButton.onclick = () => displayAllShoes(filterCategory, page - 1);
+                    paginationContainer.appendChild(prevButton);
+                }
+
+                // عرض رقم الصفحة الحالية
+                const pageInfo = document.createElement('span');
+                pageInfo.className = 'font-semibold text-text-color-secondary';
+                pageInfo.textContent = `صفحة ${page} من ${totalPages}`;
+                paginationContainer.appendChild(pageInfo);
+
+                // زر "التالي"
+                if (page < totalPages) {
+                    const nextButton = document.createElement('button');
+                    nextButton.className = 'app-button app-button-secondary';
+                    nextButton.innerHTML = 'التالي <i class="fas fa-arrow-left mr-2"></i>';
+                    nextButton.onclick = () => displayAllShoes(filterCategory, page + 1);
+                    paginationContainer.appendChild(nextButton);
+                }
+                displayArea.appendChild(paginationContainer);
+            }
+            // ▲▲▲ نهاية إضافة أزرار التنقل بين الصفحات ▲▲▲
+        }
+
+        // تحديث أزرار الفلترة
+        document.querySelectorAll('#shoe-filter-buttons .filter-button').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === filterCategory) {
+                btn.classList.add('active');
+            }
+        });
+    } catch (error) {
+        console.error("Error displaying shoes from Dexie:", error);
+        showToast('خطأ في عرض الأحذية.', 'error');
+    }
+}
         window.openShoeDetailsModal = async function(shoeId) { /* ... same as original ... */ 
             try {
                 await db.open();
@@ -3149,33 +3194,45 @@ document.getElementById('sell-shoe-form').addEventListener('submit', async funct
 // =================== ابدأ النسخ من هنا ===================
 
 // (الكود النهائي الكامل لهذه الميزة)
-async function displayPendingSales(options = {}) {
+// (استبدال) --- دالة عرض المبيعات المعلقة مع ترقيم الصفحات ---
+async function displayPendingSales(options = {}, page = 1) {
     const { dateFilter = null } = options;
+    const salesPerPage = 10; // عدد المبيعات المعلقة في كل صفحة
+    const pendingSalesArea = document.getElementById('pending-sales-area');
+
     try {
         await db.open();
-        const pendingSalesArea = document.getElementById('pending-sales-area');
-        pendingSalesArea.innerHTML = '';
-        const shoes = await db.shoes.toArray();
-        const shoesMap = new Map(shoes.map(shoe => [shoe.id, shoe]));
-        let filteredSales = [];
+        let query;
+        let baseSales;
+
+        // بناء الاستعلام الأولي
         if (dateFilter) {
             const allPendingSales = await db.pendingSales.toArray();
-            const baseSales = allPendingSales.filter(sale => sale.shippingConfirmed === true);
-            filteredSales = baseSales.filter(sale => sale.sellDate === dateFilter);
+            baseSales = allPendingSales.filter(sale => sale.shippingConfirmed === true && sale.sellDate === dateFilter);
+            query = db.pendingSales.where('id').anyOf(baseSales.map(s => s.id));
         } else {
-            const baseSales = await db.pendingSales.toArray();
             if (currentPendingSaleFilter === 'pending') {
-                filteredSales = baseSales.filter(sale => !sale.shippingConfirmed);
+                query = db.pendingSales.where('shippingConfirmed').equals(false);
             } else if (currentPendingSaleFilter === 'shipped') {
-                filteredSales = baseSales.filter(sale => sale.shippingConfirmed === true);
+                query = db.pendingSales.where('shippingConfirmed').equals(true);
             } else {
-                filteredSales = baseSales;
+                query = db.pendingSales.toCollection();
             }
         }
+        
+        const totalSales = await query.count();
+        const totalPages = Math.ceil(totalSales / salesPerPage);
+
+        const filteredSales = await query.reverse() // لعرض الأحدث أولاً
+                                         .offset((page - 1) * salesPerPage)
+                                         .limit(salesPerPage)
+                                         .toArray();
+        
+        pendingSalesArea.innerHTML = '';
+
         if (filteredSales.length === 0) {
-            // ... (لا يوجد تغيير هنا)
             let message = "لا توجد مبيعات تطابق هذا الفلتر.";
-            if (dateFilter) { message = `لا توجد مبيعات مشحونة للتاريخ المحدد: ${dateFilter}`; } 
+            if (dateFilter) { message = `لا توجد مبيعات مشحونة للتاريخ المحدد: ${dateFilter}`; }
             else {
                  if (currentPendingSaleFilter === 'pending') message = "لا توجد عمليات معلقة.";
                  else if (currentPendingSaleFilter === 'shipped') message = "لا توجد عمليات تم تأكيد شحنها.";
@@ -3184,7 +3241,10 @@ async function displayPendingSales(options = {}) {
             pendingSalesArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">${message}</p>`;
             return;
         }
-        filteredSales.sort((a, b) => new Date(b.sellDate) - new Date(a.sellDate)).forEach(sale => {
+
+        const shoesMap = new Map((await db.shoes.toArray()).map(shoe => [shoe.id, shoe]));
+
+        filteredSales.forEach(sale => {
             const card = document.createElement('div');
             card.className = 'data-card pending-sale-card p-4 mb-4';
             if (sale.shippingConfirmed) { card.classList.add('shipped'); }
@@ -3197,8 +3257,6 @@ async function displayPendingSales(options = {}) {
             const shippingButtonText = sale.shippingConfirmed ? 'تم تأكيد الشحن' : 'تأكيد الشحن';
             const shippingButtonDisabled = sale.shippingConfirmed ? 'disabled' : '';
             const shippingButtonClasses = sale.shippingConfirmed ? 'app-button app-button-shipping shipped-confirmed' : 'app-button app-button-shipping';
-            
-            // ▼▼▼ بداية التعديل: إضافة معلومات الشحن للبطاقة ▼▼▼
             const shoeTotal = sale.quantitySold * sale.sellPrice;
             let shippingInfoHTML = '';
             if (sale.shippingPrice && sale.shippingPrice > 0) {
@@ -3208,7 +3266,6 @@ async function displayPendingSales(options = {}) {
                     <p class="font-bold border-t border-gray-400/50 pt-1 mt-1"><strong>الإجمالي مع الشحن:</strong> <span class="text-primary-color">${grandTotal.toFixed(2)} دج</span></p>
                 `;
             }
-            // ▲▲▲ نهاية التعديل ▲▲▲
 
             card.innerHTML = `
                 <div class="flex gap-4 items-start">
@@ -3233,6 +3290,32 @@ async function displayPendingSales(options = {}) {
             `;
             pendingSalesArea.appendChild(card);
         });
+
+        // إضافة أزرار التنقل بين الصفحات للمبيعات المعلقة
+        if (totalPages > 1) {
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'flex justify-center items-center gap-3 mt-8';
+            if (page > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.className = 'app-button app-button-secondary';
+                prevButton.innerHTML = '<i class="fas fa-arrow-right ml-2"></i> السابق';
+                prevButton.onclick = () => displayPendingSales(options, page - 1);
+                paginationContainer.appendChild(prevButton);
+            }
+            const pageInfo = document.createElement('span');
+            pageInfo.className = 'font-semibold text-text-color-secondary';
+            pageInfo.textContent = `صفحة ${page} من ${totalPages}`;
+            paginationContainer.appendChild(pageInfo);
+            if (page < totalPages) {
+                const nextButton = document.createElement('button');
+                nextButton.className = 'app-button app-button-secondary';
+                nextButton.innerHTML = 'التالي <i class="fas fa-arrow-left mr-2"></i>';
+                nextButton.onclick = () => displayPendingSales(options, page + 1);
+                paginationContainer.appendChild(nextButton);
+            }
+            pendingSalesArea.appendChild(paginationContainer);
+        }
+
     } catch (error) {
         console.error("Error displaying pending sales:", error);
         showToast('خطأ في عرض المبيعات المعلقة.', 'error');

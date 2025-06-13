@@ -1069,6 +1069,69 @@
             background-color: var(--primary-color-dark);
             color: var(--primary-color-light);
         }
+
+        /* (إضافة جديدة) أنماط خاصة بالطباعة */
+@media print {
+    body * {
+        visibility: hidden; /* إخفاء كل شيء في الصفحة */
+    }
+    #detailed-monthly-report-section, #detailed-monthly-report-section * {
+        visibility: visible; /* إظهار قسم التقرير وكل ما بداخله فقط */
+    }
+    #detailed-monthly-report-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+    }
+    .app-button {
+        display: none; /* إخفاء زر الطباعة نفسه عند الطباعة */
+    }
+    body.dark-mode { /* فرض الوضع الفاتح عند الطباعة */
+        --text-color-primary: #000000;
+        --card-background-color: #FFFFFF;
+        --border-color: #dddddd;
+        background-color: #FFFFFF;
+    }
+    table, th, td {
+        color: #000000 !important;
+    }
+}
+/* (إضافة جديدة) أنماط خاصة بالطباعة */
+@media print {
+    body * {
+        visibility: hidden; /* إخفاء كل شيء في الصفحة */
+    }
+    #detailed-monthly-report-section, #detailed-monthly-report-section * {
+        visibility: visible; /* إظهار قسم التقرير وكل ما بداخله فقط */
+    }
+    #detailed-monthly-report-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+    }
+    .app-button {
+        display: none; /* إخفاء زر الطباعة نفسه عند الطباعة */
+    }
+    body.dark-mode { /* فرض الوضع الفاتح عند الطباعة */
+        --text-color-primary: #000000;
+        --card-background-color: #FFFFFF;
+        --border-color: #dddddd;
+        background-color: #FFFFFF;
+    }
+    table, th, td {
+        color: #000000 !important;
+    }
+
+    /* ▼▼▼ أضف هذا الكود الجديد هنا ▼▼▼ */
+    #detailed-monthly-sales-container {
+        display: block !important;
+    }
+    /* ▲▲▲ انتهت الإضافة ▲▲▲ */
+}
     </style>
 </head>
 <body> 
@@ -1171,6 +1234,27 @@
        <div id="monthly-sales-display-area-stats">
        </div>
     </div>
+
+    <div id="detailed-monthly-report-section" class="mt-8">
+    <div class="flex justify-between items-center mb-4">
+        </button>
+    </div>
+<div id="detailed-monthly-sales-container" class="hidden bg-card-background-color p-4 rounded-lg shadow-md overflow-x-auto">
+</div>
+</div>
+           <h4 class="section-title text-right">طباعة </h4> <!-- العنوان سيأخذ عرضه الكامل ومحاذاة لليمين. الكلاس section-title يوفر margin-bottom -->
+        <div class="text-center mb-4"> <!-- حاوية جديدة لتوسيط الزر. mb-4 للحفاظ على التباعد السفلي الذي كان على الحاوية الأصلية -->
+    <h4 class="section-title text-right"> </h4>
+    <div class="text-right mb-4"> <!-- تم تغيير text-center إلى text-right لمحاذاة الزر إلى أقصى اليمين -->
+            <button onclick="window.print()" class="app-button app-button-secondary px-4 py-2 text-sm">
+                <i class="fas fa-print mr-2"> </i> طباعة التقرير
+            </button>
+        </div>
+        <div id="detailed-monthly-sales-container" class="hidden bg-card-background-color p-4 rounded-lg shadow-md overflow-x-auto">
+        </div>
+    </div>
+    <!-- تم إزالة div المكرر الذي يحمل id="detailed-monthly-sales-container" من هنا -->
+
 
     <div class="back-button-container">
        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
@@ -1323,11 +1407,14 @@
 <div id="daily-sales-confirmation-view-content" class="main-view-section hidden">
     <h3 class="view-title">تأكيد المبيعات المعلقة</h3>
 
-    <div class="flex justify-center gap-2 mb-6" id="pending-sale-filter-buttons">
-        <button class="app-button filter-button active" data-filter="all">الكل</button>
-        <button class="app-button filter-button" data-filter="pending">معلقة</button>
-        <button class="app-button filter-button" data-filter="shipped">تم الشحن</button>
-    </div>
+    <div class="flex flex-wrap justify-center gap-2 mb-6" id="pending-sale-filter-buttons">
+    <button class="app-button filter-button active" data-filter="all">الكل</button>
+    <button class="app-button filter-button" data-filter="pending">معلقة</button>
+    <button class="app-button filter-button" data-filter="shipped">تم الشحن</button>
+    <button id="date-filter-btn" class="app-button filter-button">
+        <i class="fas fa-calendar-alt mr-2"></i>الفرز حسب تاريخ
+    </button>
+</div>
 
     <div id="pending-sales-area">
         </div>
@@ -1495,11 +1582,11 @@
                     <input type="text" id="sell-customer-name" class="form-input">
                 </div>
                 <div>
-                    <label for="sell-customer-address" class="form-label">عنوان/ولاية المشتري:</label>
+                    <label for="sell-customer-address" class="form-label">عنوان و ولاية :</label>
                     <input type="text" id="sell-customer-address" class="form-input">
                 </div>
                 <div>
-                    <label for="sell-customer-phone" class="form-label">رقم هاتف المشتري:</label>
+                    <label for="sell-customer-phone" class="form-label">رقم هاتف :</label>
                     <input type="tel" id="sell-customer-phone" class="form-input">
                 </div>
                 <hr class="my-5 border-border-color"> 
@@ -1521,6 +1608,10 @@
                         <label for="sell-price" class="form-label">سعر البيع (للقطعة):</label>
                         <input type="number" id="sell-price" class="form-input" min="0" step="any" required>
                     </div>
+                </div>
+                <div>
+                <label for="sell-shipping-price" class="form-label">سعر الشحن (اختياري):</label>
+                <input type="number" id="sell-shipping-price" class="form-input" placeholder="مثال: 600" min="0">
                 </div>
                 <div>
                     <label for="sell-date" class="form-label">تاريخ البيع:</label>
@@ -1743,14 +1834,14 @@
         // Dexie DB instance
 // استبدل كل تعريفات الـ versions القديمة بهذا التعريف الجديد
         const db = new Dexie("ShoesManagerDB_v6"); // قمنا بتغيير الاسم لضمان التحديث
-        db.version(6).stores({ 
-            shoes: 'id, name, addedDate, category, *sizes.size', 
-            sales: '++id, shoeId, date, total, saleMonthYear', 
-            returns: '++id, phone, date, returnMonthYear', 
-            pendingSales: 'id, shoeId, shoeImage, date, saleMonthYear, shippingConfirmed',
-            deliveryPrices: 'id, name', // يبقى كما هو
-            monthlyReports: 'monthYear, &monthYear',
-            suppliers: '++id, name, notes, imageUrl, addedDate'
+    db.version(7).stores({
+    shoes: 'id, name, addedDate, category, *sizes.size',
+    sales: '++id, shoeId, date, total, saleMonthYear, shippingPrice', // أضفنا shippingPrice
+    returns: '++id, phone, date, returnMonthYear',
+    pendingSales: 'id, shoeId, shoeImage, date, saleMonthYear, shippingConfirmed, shippingPrice', // أضفنا shippingPrice
+    deliveryPrices: 'id, name',
+    monthlyReports: 'monthYear, &monthYear',
+    suppliers: '++id, name, notes, imageUrl, addedDate'
         }).upgrade(async tx => {
             console.log("Upgrading database schema to version 6 to add notes for delivery prices.");
             
@@ -1806,7 +1897,81 @@
                 });
             }
         });
+        // (إضافة جديدة) دالة لعرض تقرير المبيعات الشهري المفصل
+// (الكود النهائي الكامل - قم بلصق هذا)
+async function displayDetailedMonthlyReport() {
+    const container = document.getElementById('detailed-monthly-sales-container');
+    container.innerHTML = '<p class="text-text-color-secondary text-center py-4">جاري تحميل التقرير...</p>';
 
+    try {
+        await db.open();
+        
+        const now = new Date();
+        const currentMonthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        
+        const salesThisMonth = await db.sales.where('saleMonthYear').equals(currentMonthYear).toArray();
+
+        if (salesThisMonth.length === 0) {
+            container.innerHTML = '<p class="text-text-color-secondary text-center py-4">لا توجد مبيعات مسجلة لهذا الشهر.</p>';
+            return;
+        }
+
+        // ▼▼▼ بداية الإضافة: حساب الإجماليات ▼▼▼
+        const totalQuantitySold = salesThisMonth.reduce((sum, sale) => sum + sale.quantity, 0);
+        const totalValueSold = salesThisMonth.reduce((sum, sale) => sum + sale.total, 0);
+        // ▲▲▲ نهاية الإضافة ▲▲▲
+        
+        // تم إضافة بعض الأنماط المضمنة لتحسين شكل الطباعة
+        let tableHTML = `<table class="min-w-full text-sm text-right" style="width: 100%; border-collapse: collapse;">
+                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                <tr>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid #333;">الزبون</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid #333;">الحذاء المباع</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid #333;">تاريخ البيع</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #333;">السعر الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+        
+        salesThisMonth.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        salesThisMonth.forEach(sale => {
+const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn' });            tableHTML += `
+                <tr class="border-b border-border-color">
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${sale.customerName || 'زبون غير مسجل'}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${sale.shoeName} (مقاس: ${sale.size})</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${saleDate}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left; font-family: monospace;">${sale.total.toFixed(2)} دج</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `</tbody></table>`;
+
+        // ▼▼▼ بداية الإضافة: إنشاء قسم الملخص ▼▼▼
+        const summaryHTML = `
+            <div style="margin-top: 25px; padding-top: 15px; border-top: 2px solid #333; text-align: right; font-size: 14px; color: #000;">
+                <h5 style="font-size: 16px; font-weight: 700; margin-bottom: 10px;">ملخص مبيعات الشهر</h5>
+                <p style="font-size: 15px; margin-bottom: 5px;">
+                    <strong>إجمالي عدد الأحذية المباعة:</strong>
+                    ${totalQuantitySold} قطعة
+                </p>
+                <p style="font-size: 15px;">
+                    <strong>المجموع الكلي للمبيعات:</strong>
+                    <span style="font-weight: 700; color: #4CAF50;">${totalValueSold.toFixed(2)} دج</span>
+                </p>
+            </div>
+        `;
+        // ▲▲▲ نهاية الإضافة ▲▲▲
+
+        // دمج الجدول مع الملخص
+        container.innerHTML = tableHTML + summaryHTML;
+
+    } catch (error) {
+        console.error("Error displaying detailed monthly report:", error);
+        container.innerHTML = '<p class="text-error-color text-center py-4">حدث خطأ أثناء تحميل التقرير.</p>';
+    }
+}
 
         // --- DOM Elements ---
         const mainAppContainer = document.getElementById('main-app');
@@ -2193,7 +2358,7 @@ function getFirestoreDataPath() {
                 const dataDocRef = doc(dbFirebase, ...dataPath);
                 await setDoc(dataDocRef, { ...localData, lastSync: serverTimestamp() });
                 
-                lastFirebaseSyncDateEl.textContent = new Date().toLocaleString('ar-EG');
+lastFirebaseSyncDateEl.textContent = new Date().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
                 showToast('تم حفظ البيانات بنجاح في Firebase!', 'success');
             } catch (error) {
                 console.error("Error saving data to Firestore:", error);
@@ -2321,7 +2486,7 @@ if (firebaseData.monthlyReports) { await db.monthlyReports.bulkPut(firebaseData.
                         else { await db.deliveryPrices.bulkPut(getDefaultWilayaPrices()); } // Fallback to defaults if not in backup
 
                         if (firebaseData.lastSync && firebaseData.lastSync.toDate) {
-                            lastFirebaseSyncDateEl.textContent = firebaseData.lastSync.toDate().toLocaleString('ar-EG');
+lastFirebaseSyncDateEl.textContent = firebaseData.lastSync.toDate().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
                         } else {
                              lastFirebaseSyncDateEl.textContent = 'غير متوفر (بيانات قديمة)';
                         }
@@ -2364,7 +2529,7 @@ if (currentViewId) {
                 const dataDocRef = doc(dbFirebase, ...dataPath);
                 const docSnap = await getDoc(dataDocRef);
                 if (docSnap.exists() && docSnap.data().lastSync && docSnap.data().lastSync.toDate) {
-                    lastFirebaseSyncDateEl.textContent = docSnap.data().lastSync.toDate().toLocaleString('ar-EG');
+lastFirebaseSyncDateEl.textContent = docSnap.data().lastSync.toDate().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
                 } else {
                     lastFirebaseSyncDateEl.textContent = 'لم تتم المزامنة بعد';
                 }
@@ -2745,7 +2910,7 @@ let currentPendingSaleFilter = 'all'; // فلتر المبيعات المعلق�
                             ${imageHTML}
                             <h4 title="${shoe.name}">${shoe.name}</h4>
                             <p class="text-xs text-gray-500">${shoe.category || 'غير مصنف'}</p>
-                            <p class="date-added">أضيف في: ${new Date(shoe.addedDate).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+<p class="date-added">أضيف في: ${new Date(shoe.addedDate).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
                             <p class="sizes-info">
                                 <span class="font-medium">المقاسات: </span>
                                 <span class="text-gray-600">${shoe.sizes.map(s => `${s.size} (${s.quantity})`).join(', ') || 'N/A'}</span>
@@ -2912,120 +3077,138 @@ let currentPendingSaleFilter = 'all'; // فلتر المبيعات المعلق�
             };
             showModal('sell-shoe-modal');
         }
-        document.getElementById('sell-shoe-form').addEventListener('submit', async function(event) { /* ... same as original ... */ 
-            event.preventDefault();
-            const customerName = document.getElementById('sell-customer-name').value.trim();
-            const customerAddress = document.getElementById('sell-customer-address').value.trim();
-            const customerPhone = document.getElementById('sell-customer-phone').value.trim();
-            const shoeId = document.getElementById('sell-shoe-select').value;
-            const shoeName = document.getElementById('sell-shoe-select').options[document.getElementById('sell-shoe-select').selectedIndex]?.text;
-            const size = document.getElementById('sell-shoe-size-select').value;
-            const quantitySold = parseInt(document.getElementById('sell-quantity').value);
-            const sellPrice = parseFloat(document.getElementById('sell-price').value);
-            const sellDate = document.getElementById('sell-date').value;
-            const notes = document.getElementById('sell-notes').value;
+document.getElementById('sell-shoe-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const customerName = document.getElementById('sell-customer-name').value.trim();
+    const customerAddress = document.getElementById('sell-customer-address').value.trim();
+    const customerPhone = document.getElementById('sell-customer-phone').value.trim();
+    const shoeId = document.getElementById('sell-shoe-select').value;
+    const shoeName = document.getElementById('sell-shoe-select').options[document.getElementById('sell-shoe-select').selectedIndex]?.text;
+    const size = document.getElementById('sell-shoe-size-select').value;
+    const quantitySold = parseInt(document.getElementById('sell-quantity').value);
+    const sellPrice = parseFloat(document.getElementById('sell-price').value);
+    const sellDate = document.getElementById('sell-date').value;
+    const notes = document.getElementById('sell-notes').value;
+    
+    // ▼▼▼ بداية التعديل: قراءة سعر الشحن ▼▼▼
+    const shippingPrice = parseFloat(document.getElementById('sell-shipping-price').value) || 0;
+    // ▲▲▲ نهاية التعديل ▲▲▲
 
-            if (!shoeId || !size || isNaN(quantitySold) || quantitySold <= 0 || isNaN(sellPrice) || sellPrice < 0 || !sellDate) {
-                showToast('يرجى ملء جميع حقول البيع المطلوبة بشكل صحيح.', 'error');
-                return;
-            }
-            if (customerPhone && !/^\d{8,15}$/.test(customerPhone)) {
-                 showToast('يرجى إدخال رقم هاتف صحيح للمشتري أو تركه فارغًا.', 'error');
-                return;
-            }
-            
-            const saleMonthYear = new Date(sellDate).toISOString().slice(0, 7); 
+    if (!shoeId || !size || isNaN(quantitySold) || quantitySold <= 0 || isNaN(sellPrice) || sellPrice < 0 || !sellDate) {
+        showToast('يرجى ملء جميع حقول البيع المطلوبة بشكل صحيح.', 'error');
+        return;
+    }
+    if (customerPhone && !/^\d{8,15}$/.test(customerPhone)) {
+         showToast('يرجى إدخال رقم هاتف صحيح للمشتري أو تركه فارغًا.', 'error');
+        return;
+    }
+    
+    const saleMonthYear = new Date(sellDate).toISOString().slice(0, 7); 
 
-            try {
-                await db.open();
-                const shoeToSell = await db.shoes.get(shoeId);
-                if (!shoeToSell) {
-                    showToast('لم يتم العثور على الحذاء المحدد.', 'error'); return;
-                }
-                const sizeIndex = shoeToSell.sizes.findIndex(s => s.size === size);
-                if (sizeIndex === -1 || shoeToSell.sizes[sizeIndex].quantity < quantitySold) {
-                    showToast(`الكمية المطلوبة (${quantitySold}) لمقاس ${size} غير متوفرة.`, 'error'); return;
-                }
-
-                const newSizes = [...shoeToSell.sizes];
-                const originalStockForSize = newSizes[sizeIndex].quantity;
-                newSizes[sizeIndex].quantity -= quantitySold;
-                await db.shoes.update(shoeId, { sizes: newSizes });
-
-                const pendingSale = {
-                    id: `pending_${Date.now()}`, 
-                    shoeId, shoeName, shoeImage: shoeToSell.imageUrl,
-                    size, quantitySold, sellPrice, sellDate, notes,
-                    customerName, customerAddress, customerPhone,
-                    originalStockForSize: originalStockForSize, 
-                    shippingConfirmed: false,
-                    saleMonthYear: saleMonthYear
-                };
-
-                await db.pendingSales.add(pendingSale);
-
-                showToast('أُضيفت البيعة للتأكيد. الكمية خُصمت من المخزون.');
-                closeModal('sell-shoe-modal');
-                if (!document.getElementById('daily-sales-confirmation-view-content').classList.contains('hidden')) {
-                     displayPendingSales();
-                }
-            } catch (error) {
-                console.error("Error processing sale with Dexie:", error);
-                showToast('فشل تسجيل البيع. تحقق من الكونسول.', 'error');
-            }
-        });
-async function displayPendingSales() {
     try {
         await db.open();
-        const pendingSales = await db.pendingSales.toArray();
+        const shoeToSell = await db.shoes.get(shoeId);
+        if (!shoeToSell) {
+            showToast('لم يتم العثور على الحذاء المحدد.', 'error'); return;
+        }
+        const sizeIndex = shoeToSell.sizes.findIndex(s => s.size === size);
+        if (sizeIndex === -1 || shoeToSell.sizes[sizeIndex].quantity < quantitySold) {
+            showToast(`الكمية المطلوبة (${quantitySold}) لمقاس ${size} غير متوفرة.`, 'error'); return;
+        }
+
+        const newSizes = [...shoeToSell.sizes];
+        newSizes[sizeIndex].quantity -= quantitySold;
+        await db.shoes.update(shoeId, { sizes: newSizes });
+
+        const pendingSale = {
+            id: `pending_${Date.now()}`, 
+            shoeId, shoeName, shoeImage: shoeToSell.imageUrl,
+            size, quantitySold, sellPrice, sellDate, notes,
+            customerName, customerAddress, customerPhone,
+            shippingConfirmed: false,
+            saleMonthYear: saleMonthYear,
+            // ▼▼▼ بداية التعديل: إضافة سعر الشحن للبيانات ▼▼▼
+            shippingPrice: shippingPrice
+            // ▲▲▲ نهاية التعديل ▲▲▲
+        };
+
+        await db.pendingSales.add(pendingSale);
+
+        showToast('أُضيفت البيعة للتأكيد. الكمية خُصمت من المخزون.');
+        closeModal('sell-shoe-modal');
+        if (!document.getElementById('daily-sales-confirmation-view-content').classList.contains('hidden')) {
+             displayPendingSales();
+        }
+    } catch (error) {
+        console.error("Error processing sale with Dexie:", error);
+        showToast('فشل تسجيل البيع. تحقق من الكونسول.', 'error');
+    }
+});
+// (الكود النهائي الصحيح)
+// (الكود النهائي والأكثر استقرارًا)
+// =================== ابدأ النسخ من هنا ===================
+
+// (الكود النهائي الكامل لهذه الميزة)
+async function displayPendingSales(options = {}) {
+    const { dateFilter = null } = options;
+    try {
+        await db.open();
         const pendingSalesArea = document.getElementById('pending-sales-area');
         pendingSalesArea.innerHTML = '';
-
-        // --- إضافة جديدة: جلب كل الأحذية لإنشاء خريطة للصور ---
         const shoes = await db.shoes.toArray();
         const shoesMap = new Map(shoes.map(shoe => [shoe.id, shoe]));
-        // ----------------------------------------------------
-
-        // --- منطق التصفية يبقى كما هو ---
-        let filteredSales = pendingSales;
-        if (currentPendingSaleFilter === 'pending') {
-            filteredSales = pendingSales.filter(sale => !sale.shippingConfirmed);
-        } else if (currentPendingSaleFilter === 'shipped') {
-            filteredSales = pendingSales.filter(sale => sale.shippingConfirmed);
+        let filteredSales = [];
+        if (dateFilter) {
+            const allPendingSales = await db.pendingSales.toArray();
+            const baseSales = allPendingSales.filter(sale => sale.shippingConfirmed === true);
+            filteredSales = baseSales.filter(sale => sale.sellDate === dateFilter);
+        } else {
+            const baseSales = await db.pendingSales.toArray();
+            if (currentPendingSaleFilter === 'pending') {
+                filteredSales = baseSales.filter(sale => !sale.shippingConfirmed);
+            } else if (currentPendingSaleFilter === 'shipped') {
+                filteredSales = baseSales.filter(sale => sale.shippingConfirmed === true);
+            } else {
+                filteredSales = baseSales;
+            }
         }
-        // ------------------------------------
-
         if (filteredSales.length === 0) {
-            let message = "لا توجد مبيعات معلقة حاليًا.";
-            if (currentPendingSaleFilter === 'pending') message = "لا توجد عمليات معلقة.";
-            if (currentPendingSaleFilter === 'shipped') message = "لا توجد عمليات تم تأكيد شحنها.";
+            // ... (لا يوجد تغيير هنا)
+            let message = "لا توجد مبيعات تطابق هذا الفلتر.";
+            if (dateFilter) { message = `لا توجد مبيعات مشحونة للتاريخ المحدد: ${dateFilter}`; } 
+            else {
+                 if (currentPendingSaleFilter === 'pending') message = "لا توجد عمليات معلقة.";
+                 else if (currentPendingSaleFilter === 'shipped') message = "لا توجد عمليات تم تأكيد شحنها.";
+                 else if (currentPendingSaleFilter === 'all') message = "لا توجد مبيعات معلقة حاليًا.";
+            }
             pendingSalesArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">${message}</p>`;
             return;
         }
-
         filteredSales.sort((a, b) => new Date(b.sellDate) - new Date(a.sellDate)).forEach(sale => {
             const card = document.createElement('div');
             card.className = 'data-card pending-sale-card p-4 mb-4';
-            if (sale.shippingConfirmed) {
-                card.classList.add('shipped');
-            }
-
-            // ===== هذا هو الجزء الذي تم تعديله ليصبح أكثر ذكاءً =====
+            if (sale.shippingConfirmed) { card.classList.add('shipped'); }
             const correspondingShoe = shoesMap.get(sale.shoeId);
-            // نعتمد على الصورة المحفوظة، وإذا لم توجد، نبحث في بيانات الحذاء الأصلية
             const imageToDisplay = sale.shoeImage || (correspondingShoe ? correspondingShoe.imageUrl : null);
-            
             let imageHTML = `<div class="w-24 h-24 bg-gray-200 rounded-md mb-3 flex items-center justify-center text-gray-400 text-sm shrink-0">لا توجد صورة</div>`;
             if (imageToDisplay) {
                 imageHTML = `<div class="w-24 h-24 rounded-md mb-3 overflow-hidden flex items-center justify-center shrink-0"><img src="${imageToDisplay}" alt="${sale.shoeName}" class="w-full h-full object-cover"></div>`;
             }
-            // =======================================================
-
             const shippingButtonText = sale.shippingConfirmed ? 'تم تأكيد الشحن' : 'تأكيد الشحن';
             const shippingButtonDisabled = sale.shippingConfirmed ? 'disabled' : '';
-            const shippingButtonClasses = sale.shippingConfirmed 
-                ? 'app-button app-button-shipping shipped-confirmed' 
-                : 'app-button app-button-shipping';
+            const shippingButtonClasses = sale.shippingConfirmed ? 'app-button app-button-shipping shipped-confirmed' : 'app-button app-button-shipping';
+            
+            // ▼▼▼ بداية التعديل: إضافة معلومات الشحن للبطاقة ▼▼▼
+            const shoeTotal = sale.quantitySold * sale.sellPrice;
+            let shippingInfoHTML = '';
+            if (sale.shippingPrice && sale.shippingPrice > 0) {
+                const grandTotal = shoeTotal + sale.shippingPrice;
+                shippingInfoHTML = `
+                    <p><strong>سعر الشحن:</strong> <span class="text-blue-600 font-semibold">${sale.shippingPrice.toFixed(2)} دج</span></p>
+                    <p class="font-bold border-t border-gray-400/50 pt-1 mt-1"><strong>الإجمالي مع الشحن:</strong> <span class="text-primary-color">${grandTotal.toFixed(2)} دج</span></p>
+                `;
+            }
+            // ▲▲▲ نهاية التعديل ▲▲▲
 
             card.innerHTML = `
                 <div class="flex gap-4 items-start">
@@ -3033,16 +3216,19 @@ async function displayPendingSales() {
                     <div class="flex-grow">
                         <h5>${sale.shoeName} - مقاس ${sale.size}</h5>
                         <p><strong>الكمية للبيع:</strong> ${sale.quantitySold}</p>
-                        <p><strong>السعر الإجمالي:</strong> ${ (sale.quantitySold * sale.sellPrice).toFixed(2) } دج</p>
-                        <p class="text-xs"><strong>المشتري:</strong> ${sale.customerName || 'غير محدد'} (${sale.customerPhone || 'لا يوجد هاتف'})</p>
-                        <p class="text-xs"><strong>العنوان:</strong> ${sale.customerAddress || 'غير محدد'}</p>
-                        ${sale.notes ? `<p class="text-xs mt-1 notes-sub-card"><strong>ملاحظات:</strong> ${sale.notes}</p>` : ''}
+                        <p><strong>سعر الحذاء الإجمالي:</strong> ${shoeTotal.toFixed(2)} دج</p>
+                        ${shippingInfoHTML} 
+                        <div class="mt-2 pt-2 border-t border-gray-400/20">
+                            <p class="text-xs"><strong>المشتري:</strong> ${sale.customerName || 'غير محدد'} (${sale.customerPhone || 'لا يوجد هاتف'})</p>
+                            <p class="text-xs"><strong>العنوان:</strong> ${sale.customerAddress || 'غير محدد'}</p>
+                            ${sale.notes ? `<p class="text-xs mt-1 notes-sub-card"><strong>ملاحظات:</strong> ${sale.notes}</p>` : ''}
+                        </div>
                     </div>
                 </div>
                 <div class="mt-4 flex justify-end gap-3 pending-sale-actions">
-                    <button onclick="event.stopPropagation(); confirmSale('${sale.id}')" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
-                    <button onclick="event.stopPropagation(); confirmShipping('${sale.id}')" class="${shippingButtonClasses}" ${shippingButtonDisabled}>${shippingButtonText}</button>
-                    <button onclick="event.stopPropagation(); cancelPendingSale('${sale.id}')" class="app-button bg-red-500 hover:bg-red-600 text-white">إلغاء البيع</button>
+                    <button data-action="confirm-sale" data-id="${sale.id}" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
+                    <button data-action="confirm-shipping" data-id="${sale.id}" class="${shippingButtonClasses}" ${shippingButtonDisabled}>${shippingButtonText}</button>
+                    <button data-action="cancel-sale" data-id="${sale.id}" class="app-button bg-red-500 hover:bg-red-600 text-white">إلغاء البيع</button>
                 </div>
             `;
             pendingSalesArea.appendChild(card);
@@ -3052,99 +3238,111 @@ async function displayPendingSales() {
         showToast('خطأ في عرض المبيعات المعلقة.', 'error');
     }
 }
-        window.confirmShipping = async function(pendingSaleId) { /* ... same as original ... */ 
-            try {
-                await db.open();
-                const updatedCount = await db.pendingSales.update(pendingSaleId, { shippingConfirmed: true });
-                if (updatedCount) {
-                    displayPendingSales(); 
-                    const sale = await db.pendingSales.get(pendingSaleId); 
-                    showToast(`تم تأكيد شحن الطلب الخاص بـ "${sale.shoeName}".`);
-                } else {
-                    showToast('لم يتم العثور على البيع المعلق لتحديث حالة الشحن.', 'error');
-                }
-            } catch (error) {
-                console.error("Error confirming shipping:", error);
-                showToast('خطأ أثناء تأكيد الشحن.', 'error');
-            }
+
+async function confirmShipping(pendingSaleId) {
+    try {
+        await db.open();
+        const updatedCount = await db.pendingSales.update(pendingSaleId, { shippingConfirmed: true });
+        if (updatedCount) {
+            displayPendingSales();
+            const sale = await db.pendingSales.get(pendingSaleId);
+            showToast(`تم تأكيد شحن الطلب الخاص بـ "${sale.shoeName}".`);
+        } else {
+            showToast('لم يتم العثور على البيع المعلق لتحديث حالة الشحن.', 'error');
         }
-        window.confirmSale = async function(pendingSaleId) { /* ... same as original ... */ 
-            try {
-                await db.open();
-                const saleToConfirm = await db.pendingSales.get(pendingSaleId);
-                if (!saleToConfirm) {
-                    showToast('لم يتم العثور على البيع المعلق.', 'error');
-                    return;
-                }
+    } catch (error) {
+        console.error("Error confirming shipping:", error);
+        showToast('خطأ أثناء تأكيد الشحن.', 'error');
+    }
+}
 
-                const confirmedSale = {
-                    shoeId: saleToConfirm.shoeId,
-                    shoeName: saleToConfirm.shoeName,
-                    size: saleToConfirm.size,
-                    quantity: saleToConfirm.quantitySold,
-                    price: saleToConfirm.sellPrice,
-                    total: saleToConfirm.quantitySold * saleToConfirm.sellPrice,
-                    date: saleToConfirm.sellDate,
-                    notes: saleToConfirm.notes,
-                    customerName: saleToConfirm.customerName,
-                    customerAddress: saleToConfirm.customerAddress,
-                    customerPhone: saleToConfirm.customerPhone,
-                    shippingConfirmed: saleToConfirm.shippingConfirmed,
-                    saleMonthYear: saleToConfirm.saleMonthYear 
-                };
-                await db.sales.add(confirmedSale); 
-                await db.pendingSales.delete(pendingSaleId);
-
-                showToast(`تم تأكيد بيع "${saleToConfirm.shoeName}" بنجاح.`);
-                displayPendingSales(); 
-                if (!document.getElementById('inventory-view-content').classList.contains('hidden')) displayAllShoes(currentShoeFilter);
-                if (!document.getElementById('stats-view-content').classList.contains('hidden')) displayStats();
-            } catch (error) {
-                console.error("Error confirming sale with Dexie:", error);
-                showToast('فشل تأكيد البيع.', 'error');
-            }
+async function confirmSale(pendingSaleId) {
+    try {
+        await db.open();
+        const saleToConfirm = await db.pendingSales.get(pendingSaleId);
+        if (!saleToConfirm) {
+            showToast('لم يتم العثور على البيع المعلق.', 'error');
+            return;
         }
-        window.cancelPendingSale = async function(pendingSaleId) { /* ... same as original ... */ 
-            try {
-                await db.open();
-                const saleToCancel = await db.pendingSales.get(pendingSaleId);
-                if (!saleToCancel) {
-                    showToast('لم يتم العثور على البيع المعلق للإلغاء.', 'error');
-                    return;
-                }
+        const confirmedSale = {
+            shoeId: saleToConfirm.shoeId, shoeName: saleToConfirm.shoeName,
+            size: saleToConfirm.size, quantity: saleToConfirm.quantitySold,
+            price: saleToConfirm.sellPrice, total: saleToConfirm.quantitySold * saleToConfirm.sellPrice,
+            date: saleToConfirm.sellDate, notes: saleToConfirm.notes,
+            customerName: saleToConfirm.customerName, customerAddress: saleToConfirm.customerAddress,
+            customerPhone: saleToConfirm.customerPhone, shippingConfirmed: saleToConfirm.shippingConfirmed,
+            saleMonthYear: saleToConfirm.sellDate.slice(0, 7)
+        };
+        await db.sales.add(confirmedSale);
+        await db.pendingSales.delete(pendingSaleId);
+        showToast(`تم تأكيد بيع "${saleToConfirm.shoeName}" بنجاح.`);
+        displayPendingSales();
+        if (!document.getElementById('inventory-view-content').classList.contains('hidden')) displayAllShoes(currentShoeFilter);
+        if (!document.getElementById('stats-view-content').classList.contains('hidden')) displayStats();
+    } catch (error) {
+        console.error("Error confirming sale with Dexie:", error);
+        showToast('فشل تأكيد البيع.', 'error');
+    }
+}
 
-                const shoeToUpdate = await db.shoes.get(saleToCancel.shoeId);
-                if (shoeToUpdate) {
-                    const sizeIndex = shoeToUpdate.sizes.findIndex(sz => sz.size === saleToCancel.size);
-                    if (sizeIndex > -1) {
-                        const newSizes = [...shoeToUpdate.sizes];
-                        newSizes[sizeIndex].quantity += saleToCancel.quantitySold;
-                        await db.shoes.update(saleToCancel.shoeId, { sizes: newSizes });
-                    } else {
-                         showToast('خطأ: لم يتم العثور على المقاس في المخزون لإرجاع الكمية.', 'error');
-                    }
-                } else {
-                    showToast('خطأ: لم يتم العثور على الحذاء في المخزون لإرجاع الكمية.', 'error');
-                }
-                
-                await db.pendingSales.delete(pendingSaleId);
-                showToast('تم إلغاء البيع المعلق وإرجاع الكمية للمخزون.');
-                displayPendingSales();
-                if (!document.getElementById('inventory-view-content').classList.contains('hidden')) displayAllShoes(currentShoeFilter);
-                if (!document.getElementById('stats-view-content').classList.contains('hidden')) displayStats();
-            } catch (error) {
-                console.error("Error cancelling pending sale with Dexie:", error);
-                showToast('فشل إلغاء البيع المعلق.', 'error');
-            }
+async function cancelPendingSale(pendingSaleId) {
+    try {
+        await db.open();
+        const saleToCancel = await db.pendingSales.get(pendingSaleId);
+        if (!saleToCancel) {
+            showToast('لم يتم العثور على البيع المعلق للإلغاء.', 'error');
+            return;
         }
+        const shoeToUpdate = await db.shoes.get(saleToCancel.shoeId);
+        if (shoeToUpdate) {
+            const sizeIndex = shoeToUpdate.sizes.findIndex(sz => sz.size === saleToCancel.size);
+            if (sizeIndex > -1) {
+                const newSizes = [...shoeToUpdate.sizes];
+                newSizes[sizeIndex].quantity += saleToCancel.quantitySold;
+                await db.shoes.update(saleToCancel.shoeId, { sizes: newSizes });
+            } else {
+                showToast('خطأ: لم يتم العثور على المقاس في المخزون لإرجاع الكمية.', 'error');
+            }
+        } else {
+            showToast('خطأ: لم يتم العثور على الحذاء في المخزون لإرجاع الكمية.', 'error');
+        }
+        await db.pendingSales.delete(pendingSaleId);
+        showToast('تم إلغاء البيع المعلق وإرجاع الكمية للمخزون.');
+        displayPendingSales();
+        if (!document.getElementById('inventory-view-content').classList.contains('hidden')) displayAllShoes(currentShoeFilter);
+        if (!document.getElementById('stats-view-content').classList.contains('hidden')) displayStats();
+    } catch (error) {
+        console.error("Error cancelling pending sale with Dexie:", error);
+        showToast('فشل إلغاء البيع المعلق.', 'error');
+    }
+}
 
-        // --- Statistics Display (Dexie) ---
+document.getElementById('pending-sales-area').addEventListener('click', function(event) {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    const action = button.dataset.action;
+    const saleId = button.dataset.id;
+    if (action === 'confirm-sale') {
+        confirmSale(saleId);
+    } else if (action === 'confirm-shipping') {
+        if (!button.disabled) {
+            confirmShipping(saleId);
+        }
+    } else if (action === 'cancel-sale') {
+        cancelPendingSale(saleId);
+    }
+});
+
+// ==========================================================
+//  (لصق الكود التالي هنا لإصلاح صفحة الإحصائيات)
+// ==========================================================
+
+// --- Statistics Display (Dexie) ---
 async function displayStats() { 
     try {
         await db.open();
         const shoes = await db.shoes.toArray();
         const sales = await db.sales.toArray();
-        const returns = await db.returns.toArray();
         const statsSummaryContainer = document.getElementById('stats-summary-cards');
 
         statsSummaryContainer.innerHTML = ''; 
@@ -3176,51 +3374,54 @@ async function displayStats() {
         });
         
         await displayCurrentMonthReport(); 
-
+        await displayDetailedMonthlyReport();
     } catch (error) {
         console.error("Error displaying stats from Dexie:", error);
         showToast('خطأ في عرض الإحصائيات.', 'error');
     }
 }
-        async function displayCurrentMonthReport() { /* ... same as original ... */ 
-            const monthlyReportArea = document.getElementById('monthly-sales-display-area-stats'); 
-            monthlyReportArea.innerHTML = '';
-            
-            const now = new Date();
-            const currentMonthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; 
-            const currentMonthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
 
-            try {
-                await db.open();
-                const currentMonthSales = await db.sales.where('saleMonthYear').equals(currentMonthYear).toArray();
-                const currentMonthReturns = await db.returns.where('returnMonthYear').equals(currentMonthYear).toArray();
+async function displayCurrentMonthReport() {
+    const monthlyReportArea = document.getElementById('monthly-sales-display-area-stats');
+    monthlyReportArea.innerHTML = '';
+    
+    const now = new Date();
+    const currentMonthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+const currentMonthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric', numberingSystem: 'latn' });
 
-                const totalSalesThisMonth = currentMonthSales.length;
-                const totalValueThisMonth = currentMonthSales.reduce((sum, sale) => sum + sale.total, 0);
-                const totalReturnsThisMonth = currentMonthReturns.length;
+    try {
+        await db.open();
+        const currentMonthSales = await db.sales.where('saleMonthYear').equals(currentMonthYear).toArray();
+        const currentMonthReturns = await db.returns.where('returnMonthYear').equals(currentMonthYear).toArray();
 
-                let monthRank = "متوسط";
-                if (totalSalesThisMonth > 15) monthRank = "جيد";
-                if (totalSalesThisMonth > 25) monthRank = "جيد جدًا";
-                if (totalSalesThisMonth > 40) monthRank = "ممتاز";
-                if (totalSalesThisMonth < 5) monthRank = "ضعيف";
+        const totalSalesThisMonth = currentMonthSales.length;
+        const totalValueThisMonth = currentMonthSales.reduce((sum, sale) => sum + sale.total, 0);
+        const totalReturnsThisMonth = currentMonthReturns.length;
 
-                const reportCard = document.createElement('div');
-                reportCard.className = 'data-card';
-                reportCard.innerHTML = `
-                    <h5>تقرير شهر ${currentMonthName} (الحالي)</h5>
-                    <p><strong>إجمالي المبيعات (عمليات):</strong> ${totalSalesThisMonth}</p>
-                    <p><strong>إجمالي قيمة المبيعات:</strong> <span class="font-bold text-success-color">${totalValueThisMonth.toFixed(2)} دج</span></p>
-                    <p><strong>إجمالي المرتجعات:</strong> ${totalReturnsThisMonth}</p>
-                    <p><strong>رتبة الشهر:</strong> <span class="font-semibold">${monthRank}</span></p>
-                `;
-                monthlyReportArea.appendChild(reportCard);
+        let monthRank = "متوسط";
+        if (totalSalesThisMonth > 15) monthRank = "جيد";
+        if (totalSalesThisMonth > 25) monthRank = "جيد جدًا";
+        if (totalSalesThisMonth > 40) monthRank = "ممتاز";
+        if (totalSalesThisMonth < 5) monthRank = "ضعيف";
 
-            } catch (error) {
-                console.error("Error displaying current month report:", error);
-                monthlyReportArea.innerHTML = '<p class="text-center text-error-color">خطأ في تحميل تقرير الشهر الحالي.</p>';
-            }
-        }
+        const reportCard = document.createElement('div');
+        reportCard.className = 'data-card';
+        reportCard.innerHTML = `
+            <h5>تقرير شهر ${currentMonthName} (الحالي)</h5>
+            <p><strong>إجمالي المبيعات (عمليات):</strong> ${totalSalesThisMonth}</p>
+            <p><strong>إجمالي قيمة المبيعات:</strong> <span class="font-bold text-success-color">${totalValueThisMonth.toFixed(2)} دج</span></p>
+            <p><strong>إجمالي المرتجعات:</strong> ${totalReturnsThisMonth}</p>
+            <p><strong>رتبة الشهر:</strong> <span class="font-semibold">${monthRank}</span></p>
+        `;
+        monthlyReportArea.appendChild(reportCard);
+
+    } catch (error) {
+        console.error("Error displaying current month report:", error);
+        monthlyReportArea.innerHTML = '<p class="text-center text-error-color">خطأ في تحميل تقرير الشهر الحالي.</p>';
+    }
+}
+
+// =================== انتهى النسخ هنا ===================
         
         // --- AI Assistant ---
         async function generateAppDataSummary() { /* ... same as original ... */ 
@@ -3417,7 +3618,7 @@ async function displayStats() {
                                 <p><strong class="customer-name">${entry.name || 'غير مسجل'} ${entry.lastname || ''}</strong></p>
                                 <p class="text-xs"><strong>الهاتف:</strong> ${entry.phone}</p>
                                 <p class="text-xs"><strong>الملاحظات:</strong> ${entry.notes || 'لا توجد'}</p>
-                                <p class="text-xs text-gray-400">تاريخ التسجيل: ${new Date(entry.date).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+<p class="text-xs text-gray-400">تاريخ التسجيل: ${new Date(entry.date).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
                             </div>
                             <div class="return-entry-actions flex gap-2.5 mt-1">
                                 <button onclick="populateReturnFormForEdit('${entry.id}')" class="app-button text-blue-600 hover:text-blue-800 p-1.5"><i class="fas fa-edit"></i></button>
@@ -3560,7 +3761,7 @@ async function displayStats() {
                         <p><strong class="customer-name highlight-returned">الاسم:</strong> ${foundReturn.name || ''} ${foundReturn.lastname || ''}</p>
                         <p><strong>رقم الهاتف:</strong> ${foundReturn.phone}</p>
                         <p><strong>الملاحظات:</strong> ${foundReturn.notes || 'لا توجد ملاحظات'}</p>
-                        <p class="text-xs text-gray-400">تاريخ التسجيل: ${new Date(foundReturn.date).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+<p class="text-xs text-gray-400">تاريخ التسجيل: ${new Date(foundReturn.date).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
                          <div class="return-entry-actions flex gap-2.5 mt-2.5">
                             <button onclick="populateReturnFormForEdit('${foundReturn.id}')" class="app-button text-blue-600 hover:text-blue-800 p-1.5"><i class="fas fa-edit"></i></button>
                             <button onclick="confirmDeleteReturnEntry('${foundReturn.id}')" class="app-button text-red-500 hover:text-red-700 p-1.5"><i class="fas fa-trash-alt"></i></button>
@@ -3932,7 +4133,7 @@ async function handleEditDeliveryPriceForm(event) {
                 }
 
                 document.getElementById('details-supplier-modal-notes').textContent = supplier.notes || 'لا توجد ملاحظات مسجلة.';
-                document.getElementById('details-supplier-modal-added-date').textContent = new Date(supplier.addedDate).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+document.getElementById('details-supplier-modal-added-date').textContent = new Date(supplier.addedDate).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
                 
                 showModal('supplier-details-modal');
             } catch (error) {
@@ -4144,7 +4345,7 @@ async function handleEditDeliveryPriceForm(event) {
                     salesResults.forEach(sale => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'search-result-item';
-                        itemDiv.innerHTML = `<strong>${sale.shoeName}</strong> - <span>بيع لـ ${sale.customerName || 'زبون غير مسجل'} بتاريخ ${new Date(sale.date).toLocaleDateString('ar-EG')}</span>`;
+itemDiv.innerHTML = `<strong>${sale.shoeName}</strong> - <span>بيع لـ ${sale.customerName || 'زبون غير مسجل'} بتاريخ ${new Date(sale.date).toLocaleDateString('ar-EG', { numberingSystem: 'latn' })}</span>`;
                         itemDiv.onclick = () => showSaleDetailsInModal(sale);
                         resultsArea.appendChild(itemDiv);
                     });
@@ -4395,7 +4596,7 @@ async function confirmResetApp() {
 }
         // أضف هذه الدالة الجديدة مع بقية الدوال
         function showSaleDetailsInModal(sale) {
-            const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', numberingSystem: 'latn' });
             const message = `
                 <h4 class="text-lg font-bold mb-3 text-primary-color">تفاصيل عملية البيع</h4>
                 <p class="text-right mb-2"><strong>الحذاء:</strong> ${sale.shoeName || 'غير محدد'}</p>
@@ -4428,8 +4629,7 @@ window.addEventListener('load', async () => {
     // تأكد من أن كل الأحداث الأخرى (event listeners) موجودة هنا
 
     const today = new Date();
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }; 
-    currentDateEl.textContent = `تاريخ اليوم: ${today.toLocaleDateString('ar-EG', options)}`; 
+const options = { year: 'numeric', month: 'long', day: 'numeric', numberingSystem: 'latn' };    currentDateEl.textContent = `تاريخ اليوم: ${today.toLocaleDateString('ar-EG', options)}`; 
 
     // الكود الخاص بإغلاق النوافذ عند النقر خارجها
     document.querySelectorAll('.modal-overlay').forEach(modalOverlay => {
@@ -4614,19 +4814,6 @@ window.addEventListener('load', async () => {
                 });
             });
         
-        document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(button => {
-    button.addEventListener('click', function() {
-        // تحديث الفلتر الحالي
-        currentPendingSaleFilter = this.dataset.filter;
-
-        // تحديث شكل الأزرار
-        document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(btn => btn.classList.remove('active'));
-        this.classList.add('active');
-
-        // إعادة عرض القائمة بالفلتر الجديد
-        displayPendingSales();
-    });
-});
 // (إضافة جديدة) دالة لفتح نافذة معلومات المستخدم
 function openUserInfoModal() {
     if (!currentFirebaseUser) return; // تحقق من وجود مستخدم
@@ -4649,6 +4836,58 @@ function openUserInfoModal() {
 
     showModal('user-info-modal');
 }
+// --- تأكد من بقاء هذا الكود الصحيح ---
+
+// 1. دالة لفتح نافذة إدخال التاريخ
+function promptForDateFilter() {
+    const messageModal = document.getElementById('message-modal');
+    const messageText = document.getElementById('message-modal-text');
+    const messageButtons = document.getElementById('message-modal-buttons');
+
+    messageText.innerHTML = `
+        <h4 class="modal-title mb-4">اختر تاريخ الفرز</h4>
+        <label for="modal-date-input" class="form-label">سيتم عرض المبيعات المشحونة فقط لهذا التاريخ:</label>
+        <input type="date" id="modal-date-input" class="form-input w-full">
+    `;
+
+    messageButtons.innerHTML = `
+        <button id="confirm-date-filter" class="app-button app-button-primary">فرز</button>
+        <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
+    `;
+
+    document.getElementById('confirm-date-filter').addEventListener('click', () => {
+        const selectedDate = document.getElementById('modal-date-input').value;
+        if (selectedDate) {
+            document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('date-filter-btn').classList.add('active');
+
+            displayPendingSales({ dateFilter: selectedDate });
+            closeModal('message-modal');
+        } else {
+            showToast('الرجاء اختيار تاريخ.', 'error');
+        }
+    });
+
+    showModal('message-modal');
+}
+
+
+// 2. ربط الأحداث لجميع الأزرار الأربعة
+document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(button => {
+    button.addEventListener('click', function() {
+
+        if (this.id === 'date-filter-btn') {
+            promptForDateFilter();
+        } 
+        else {
+            document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            currentPendingSaleFilter = this.dataset.filter;
+            displayPendingSales(); // استدعاء بدون تاريخ للعودة للوضع العادي
+        }
+    });
+});
     </script>
 </body>
 </html>

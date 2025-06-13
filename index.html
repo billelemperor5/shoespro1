@@ -1456,12 +1456,22 @@
                         </div>
                      </div>
 
-                     <div id="firebase-sync-section" class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6"> <h4 class="section-title mb-4">مزامنة البيانات مع Firebase</h4>
-                        <button id="save-data-to-firebase-button" class="settings-button mb-3"><i class="fas fa-cloud-upload-alt"></i> حفظ البيانات إلى Firebase</button>
-                        <button id="import-data-from-firebase-button" class="settings-button mb-3"><i class="fas fa-cloud-download-alt"></i> استيراد البيانات من Firebase</button>
-                        <p class="text-xs text-text-color-secondary mt-2">آخر مزامنة: <span id="last-firebase-sync-date">لم تتم المزامنة بعد</span></p>
-                        <p class="text-xs text-text-color-secondary mt-1">معرف المستخدم/البيانات: <span id="current-user-id-display">N/A</span></p>
-                     </div>
+<div id="firebase-sync-section" class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
+    <h4 class="section-title mb-4">مزامنة البيانات مع Firebase</h4>
+
+    <button id="save-data-to-firebase-button" class="settings-button mb-3">
+        <i class="fas fa-cloud-upload-alt"></i> حفظ البيانات إلى Firebase
+    </button>
+
+    <div class="relative"> <button id="import-data-from-firebase-button" class="settings-button mb-3 w-full">
+            <i class="fas fa-cloud-download-alt"></i> استيراد البيانات من Firebase
+        </button>
+        <span id="firebase-sync-alert" class="hidden absolute top-0 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+            جديد
+        </span>
+    </div> <p class="text-xs text-text-color-secondary mt-2">آخر مزامنة: <span id="last-firebase-sync-date">لم تتم المزامنة بعد</span></p>
+    <p class="text-xs text-text-color-secondary mt-1">معرف المستخدم/البيانات: <span id="current-user-id-display">N/A</span></p>
+</div>
 
 
                      <div class="bg-card-background-color p-5 rounded-xl shadow-lg"> 
@@ -1796,15 +1806,16 @@
             signInAnonymously, 
             signInWithCustomToken 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            getDoc,
-            serverTimestamp, 
-            collection, 
-            setLogLevel 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc,
+    serverTimestamp, 
+    collection, 
+    setLogLevel,
+    onSnapshot // <-- أضف هذا
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration (User-provided in prompt) ---
         const userProvidedConfig = { // This is the config the user wants for the "Emperor" functionality
@@ -1830,7 +1841,7 @@
         let currentFirebaseUser = null;
         let currentUserId = null; 
         let isEmperorModeActive = false;
-
+        let firestoreListenerUnsubscribe = null; // <-- أضف هذا المتغير
         // Dexie DB instance
 // استبدل كل تعريفات الـ versions القديمة بهذا التعريف الجديد
         const db = new Dexie("ShoesManagerDB_v6"); // قمنا بتغيير الاسم لضمان التحديث
@@ -2356,8 +2367,11 @@ function getFirestoreDataPath() {
             try {
                 // (السطر الجديد الصحيح)
                 const dataDocRef = doc(dbFirebase, ...dataPath);
-                await setDoc(dataDocRef, { ...localData, lastSync: serverTimestamp() });
-                
+await setDoc(dataDocRef, { 
+    ...localData, 
+    lastSync: serverTimestamp(),
+    lastSyncDeviceId: myDeviceId // <-- أضف هذا الحقل الجديد
+});
 lastFirebaseSyncDateEl.textContent = new Date().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
                 showToast('تم حفظ البيانات بنجاح في Firebase!', 'success');
             } catch (error) {
@@ -2490,7 +2504,29 @@ lastFirebaseSyncDateEl.textContent = firebaseData.lastSync.toDate().toLocaleStri
                         } else {
                              lastFirebaseSyncDateEl.textContent = 'غير متوفر (بيانات قديمة)';
                         }
-                        
+   // ابحث عن هذا الجزء داخل دالة restoreDataFromFirestore
+// ... الكود الخاص باستيراد البيانات (db.shoes.put, db.sales.bulkPut, etc.)
+
+if (docSnap.exists()) {
+    const firebaseData = docSnap.data();
+    await db.open();
+    // ...
+    // ... الكثير من كود الاستيراد ...
+    // ...
+    
+    // ▼▼▼ هذا هو الكود المضاف لإصلاح المشكلة ▼▼▼
+    // 1. نقوم بتحديث وقت المزامنة المحلي (رقم الإصدار) ليطابق وقت السحابة
+    if (firebaseData.lastSync && firebaseData.lastSync.toDate) {
+        localStorage.setItem('lastLocalSyncTimestamp', firebaseData.lastSync.toDate().getTime().toString());
+    }
+    // 2. نقوم بإخفاء التنبيه فوراً لتحسين تجربة المستخدم
+    document.getElementById('firebase-sync-alert').classList.add('hidden');
+    // ▲▲▲ انتهت الإضافة ▲▲▲
+
+    showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
+
+    // ... بقية الكود ...
+}                     
 showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
 
 // قم بتحديث الإحصائيات بشكل صريح
@@ -4980,6 +5016,88 @@ document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach
         }
     });
 });
+// ▼▼▼ أضف هذه الدالة الجديدة بالكامل ▼▼▼
+// ▼▼▼ قم باستبدال الدالة القديمة بهذه الدالة الجديدة بالكامل ▼▼▼
+async function setupRealtimeSyncListener() {
+    if (firestoreListenerUnsubscribe) {
+        firestoreListenerUnsubscribe();
+        firestoreListenerUnsubscribe = null;
+    }
+    if (!currentUserId) return;
+    
+    const dataDocRef = doc(dbFirebase, ...getFirestoreDataPath());
+    const syncAlert = document.getElementById('firebase-sync-alert');
+
+    firestoreListenerUnsubscribe = onSnapshot(dataDocRef, (docSnap) => {
+        if (!docSnap.exists() || !docSnap.data().lastSync) {
+            return; // لا تفعل شيئاً إذا لم يكن هناك بيانات أو تاريخ مزامنة
+        }
+
+        const firebaseData = docSnap.data();
+        const firebaseSyncTime = firebaseData.lastSync.toDate().getTime();
+
+        // **المنطق الجديد والذكي هنا**
+        // هل هذا التحديث قادم من جهازي أنا؟
+        if (firebaseData.lastSyncDeviceId === myDeviceId) {
+            // نعم، هذا تحديثي. فقط قم بتحديث الوقت المحلي واخرج.
+            localStorage.setItem('lastLocalSyncTimestamp', firebaseSyncTime.toString());
+            console.log("Self-update detected. Local timestamp updated.");
+            return; 
+        }
+
+        // إذا وصلنا إلى هنا، فالتحديث قادم من جهاز آخر.
+        // الآن نقوم بالمقارنة بشكل آمن.
+        const localSyncTime = localStorage.getItem('lastLocalSyncTimestamp');
+
+        if (!localSyncTime || firebaseSyncTime > parseInt(localSyncTime)) {
+            syncAlert.classList.remove('hidden'); // أظهر التنبيه
+        } else {
+            syncAlert.classList.add('hidden'); // أخفِ التنبيه
+        }
+    });
+}
+
+// داخل onAuthStateChanged
+onAuthStateChanged(auth, async (user) => {
+    // ... الكود الحالي ...
+
+    if (user) {
+        console.log("User is signed in:", user);
+        currentUserId = user.uid;
+        // ... الكود الحالي لتحديث الواجهة ...
+        
+        // ▼▼▼ أضف هذه الاستدعاءات ▼▼▼
+        await setupRealtimeSyncListener(); // إعداد المستمع للمستخدم الجديد
+        loadLastSyncDateFromFirebase();
+
+    } else {
+        console.log("User is signed out.");
+        // ▼▼▼ أضف هذا الجزء لإلغاء المستمع ▼▼▼
+        if (firestoreListenerUnsubscribe) {
+            firestoreListenerUnsubscribe();
+            firestoreListenerUnsubscribe = null;
+            console.log("Firestore listener unsubscribed.");
+        }
+        
+        currentUserId = null;
+        // ... بقية الكود الحالي لتسجيل الخروج ...
+    }
+    // ...
+});
+// ▼▼▼ أضف هذا الكود في أعلى الملف ▼▼▼
+function generateUniqueId() {
+    return 'device-' + Math.random().toString(36).substring(2, 11);
+}
+function getMyDeviceId() {
+    let deviceId = localStorage.getItem('shoesManager_deviceId');
+    if (!deviceId) {
+        deviceId = generateUniqueId();
+        localStorage.setItem('shoesManager_deviceId', deviceId);
+    }
+    return deviceId;
+}
+const myDeviceId = getMyDeviceId();
+// ▲▲▲ انتهت إضافة كود الهوية ▲▲▲
     </script>
 </body>
 </html>

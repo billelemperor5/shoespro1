@@ -1132,6 +1132,62 @@
     }
     /* ▲▲▲ انتهت الإضافة ▲▲▲ */
 }
+/* (إضافة جديدة) أنماط عرض المخزون كقائمة لتحسين الأداء */
+.shoe-list-item {
+    background-color: var(--card-background-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.3s ease;
+    cursor: pointer;
+}
+.shoe-list-item:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.shoe-list-item-thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 15px; /* مسافة بين الصورة والنص */
+    border: 2px solid var(--border-color);
+    background-color: var(--background-color);
+}
+.shoe-list-item-no-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 15px;
+}
+.shoe-list-item-info {
+    flex-grow: 1; /* لجعل النص يأخذ المساحة المتبقية */
+}
+.shoe-list-item-info h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-color-primary);
+    margin-bottom: 2px;
+}
+.shoe-list-item-info p {
+    font-size: 12px;
+    color: var(--text-color-secondary);
+}
+.shoe-list-item-actions button {
+    padding: 6px 10px;
+    font-size: 13px;
+}
     </style>
 </head>
 <body> 
@@ -2943,32 +2999,36 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
             displayArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">لا توجد أحذية تطابق هذا التصنيف "${filterCategory === 'all' ? 'الكل' : filterCategory}".</p>`;
         } else {
             const listContainer = document.createElement('div');
-            listContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4';
+            // تخلصنا من كلاسات الشبكة، الآن هو مجرد حاوية للقائمة
+            listContainer.className = 'mt-4';
             shoesArray.forEach(shoe => {
-                const card = document.createElement('div');
-                card.className = 'shoe-card';
-                card.onclick = () => openShoeDetailsModal(shoe.id);
+                const itemDiv = document.createElement('div');
+                // نستخدم الكلاس الجديد الذي أنشأناه
+                itemDiv.className = 'shoe-list-item'; 
+                itemDiv.onclick = () => openShoeDetailsModal(shoe.id);
 
-                let imageHTML = `<div class="shoe-card-image-container"><span class="no-image-text">لا توجد صورة</span></div>`;
+                // منطق جديد لعرض الصورة المصغرة أو الحرف الأول
+                let imageHTML = `<div class="shoe-list-item-no-image">${shoe.name.charAt(0).toUpperCase()}</div>`;
                 if (shoe.imageUrl) {
-                    imageHTML = `<div class="shoe-card-image-container"><img src="${shoe.imageUrl}" alt="${shoe.name}"></div>`;
+                    imageHTML = `<img src="${shoe.imageUrl}" alt="${shoe.name}" class="shoe-list-item-thumb">`;
                 }
+                
+                // إجمالي كمية القطع المتوفرة للحذاء
+                const totalQuantity = shoe.sizes.reduce((acc, s) => acc + s.quantity, 0);
 
-                card.innerHTML = `
+                // المحتوى الجديد للقائمة
+                itemDiv.innerHTML = `
                     ${imageHTML}
-                    <h4 title="${shoe.name}">${shoe.name}</h4>
-                    <p class="text-xs text-gray-500">${shoe.category || 'غير مصنف'}</p>
-                    <p class="date-added">أضيف في: ${new Date(shoe.addedDate).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
-                    <p class="sizes-info">
-                        <span class="font-medium">المقاسات: </span>
-                        <span class="text-gray-600">${shoe.sizes.map(s => `${s.size} (${s.quantity})`).join(', ') || 'N/A'}</span>
-                    </p>
-                    <div class="shoe-card-actions">
-                         <button onclick="event.stopPropagation(); openAddShoeModal('${shoe.id}')" class="app-button edit-btn"><i class="fas fa-edit mr-1.5"></i> تعديل</button>
-                         <button onclick="event.stopPropagation(); confirmDeleteShoe('${shoe.id}')" class="app-button delete-btn"><i class="fas fa-trash-alt mr-1.5"></i> حذف</button>
+                    <div class="shoe-list-item-info">
+                        <h4>${shoe.name}</h4>
+                        <p>${shoe.category || 'غير مصنف'} - إجمالي القطع: ${totalQuantity}</p>
+                    </div>
+                    <div class="shoe-list-item-actions flex gap-2">
+                         <button onclick="event.stopPropagation(); openAddShoeModal('${shoe.id}')" class="app-button app-button-secondary text-xs px-2 py-1"><i class="fas fa-edit"></i></button>
+                         <button onclick="event.stopPropagation(); confirmDeleteShoe('${shoe.id}')" class="app-button app-button-danger text-xs px-2 py-1"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
-                listContainer.appendChild(card);
+                listContainer.appendChild(itemDiv);
             });
             displayArea.appendChild(listContainer);
 

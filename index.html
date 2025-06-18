@@ -1495,8 +1495,8 @@
             <button class="nav-item" data-target="stats"> 
                 <i class="fas fa-chart-pie"></i><span class="mt-px">الإحصائيات</span>
             </button>
-            <button class="nav-item" data-target="settings"> 
-                <i class="fas fa-cog"></i><span class="mt-px">الإعدادات</span>
+             <button class="nav-item relative" data-target="settings"> <i class="fas fa-cog"></i><span class="mt-px">الإعدادات</span>
+                <span id="settings-notification-dot" class="hidden absolute top-1 right-3 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
             </button>
         </nav>
     </div>
@@ -2079,20 +2079,17 @@ const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { day: 'numeric
 
 let authInitialized = false; // متغير جديد لتتبع أول عملية تحقق
 
+// (تأكد من أن هذا الكود موجود لديك بهذا الشكل)
 onAuthStateChanged(auth, async (user) => {
     currentFirebaseUser = user;
 
-    // هذا الجزء سيعمل فقط في المرة الأولى التي يتم فيها تحميل الصفحة
     if (!authInitialized) {
-        authInitialized = true; // نمنع تشغيله مرة أخرى
-
-        // إخفاء شاشة البداية وإظهار التطبيق
+        authInitialized = true;
         const splashScreen = document.getElementById('splash-screen');
         const mainAppContainer = document.getElementById('main-app');
         splashScreen.classList.add('hidden');
         mainAppContainer.style.display = 'flex';
 
-        // افتح قاعدة البيانات المحلية هنا
         try {
             await db.open(); 
             console.log("Dexie Database opened successfully.");
@@ -2101,32 +2098,37 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Failed to open Dexie database:", error);
             showToast('فشل فتح قاعدة البيانات المحلية. بعض الميزات قد لا تعمل.', 'error');
         }
-
-        // انتقل إلى الواجهة الرئيسية
         navigateToView('home-view-content', document.querySelector('.nav-item[data-target="home"]'));
     }
 
-    // هذا الكود سيعمل دائمًا لتحديث واجهة المستخدم عند تغير حالة الدخول
-if (user) {
-    console.log("User is signed in:", user);
-    currentUserId = user.uid;
+    if (user) {
+        console.log("User is signed in:", user);
+        currentUserId = user.uid;
 
-    // إنشاء زر جديد يحمل اسم المستخدم ويفتح نافذة المعلومات
-    userStatusDiv.innerHTML = `
-        <button id="user-profile-button" class="app-button app-button-secondary text-sm px-4 py-2">
-            <i class="fas fa-user-circle mr-2"></i>
-            <span>${user.displayName || user.email}</span>
-        </button>
-    `;
-    document.getElementById('user-profile-button').addEventListener('click', openUserInfoModal);
+        userStatusDiv.innerHTML = `
+            <button id="user-profile-button" class="app-button app-button-secondary text-sm px-4 py-2">
+                <i class="fas fa-user-circle mr-2"></i>
+                <span>${user.displayName || user.email}</span>
+            </button>
+        `;
+        document.getElementById('user-profile-button').addEventListener('click', openUserInfoModal);
 
-    firebaseSyncSection.classList.remove('hidden');
-    currentUserIdDisplay.textContent = currentUserId;
-    loadLastSyncDateFromFirebase();
+        firebaseSyncSection.classList.remove('hidden');
+        currentUserIdDisplay.textContent = currentUserId;
+        
+        // ▼▼▼ الأهم هنا ▼▼▼
+        await setupRealtimeSyncListener(); // إعداد المستمع للمستخدم الجديد
+        loadLastSyncDateFromFirebase();
 
     } else {
         console.log("User is signed out.");
-        currentUserId = null; // نضع القيمة null بدلاً من قيمة عشوائية
+        if (firestoreListenerUnsubscribe) {
+            firestoreListenerUnsubscribe();
+            firestoreListenerUnsubscribe = null;
+            console.log("Firestore listener unsubscribed for logout.");
+        }
+        
+        currentUserId = null;
         userStatusDiv.innerHTML = `<button id="login-modal-button-header" class="app-button app-button-secondary text-xs px-3 py-1.5">تسجيل الدخول</button>`;
         document.getElementById('login-modal-button-header').addEventListener('click', () => openAuthModal(true));
 
@@ -2329,251 +2331,158 @@ function getFirestoreDataPath() {
     return null;
 }
 
-        async function backupDataToFirestore() {
-            const dataPath = getFirestoreDataPath();
-            if (!dataPath) {
-                showToast('لا يمكن تحديد مسار البيانات. يرجى التأكد من تسجيل الدخول أو تفعيل وضع الامبراطور.', 'error');
-                if (!isEmperorModeActive && !currentFirebaseUser) openAuthModal(true);
-                return;
-            }
-             if (!auth.currentUser) { // Ensure Firebase auth (even anonymous) is ready
-                showToast('جاري تهيئة الاتصال بالسحابة، يرجى المحاولة بعد لحظات.', 'error');
-                await initializeAuth(); // Attempt to re-init if somehow lost
-                if(!auth.currentUser) {
-                     showToast('فشل الاتصال بالسحابة. لا يمكن المزامنة.', 'error');
-                     return;
-                }
-            }
+// ▼▼▼ ابدأ النسخ من هنا ▼▼▼
 
-
-            const localData = await getAllLocalData();
-            if (!localData) return;
-
-            // Convert data to JSON string and check size
-            const dataString = JSON.stringify(localData);
-            const dataSizeBytes = new TextEncoder().encode(dataString).length;
-            const ONE_MB = 1024 * 1024;
-
-            if (dataSizeBytes > ONE_MB) {
-                showToast(`حجم البيانات كبير جدًا (${(dataSizeBytes / ONE_MB).toFixed(2)} ميغابايت). لا يمكن حفظها في Firestore كمستند واحد (الحد الأقصى 1 ميغابايت).`, 'error');
-                console.warn("Firestore document size limit exceeded:", dataSizeBytes, "bytes");
-                return;
-            }
-
-            showModal('message-modal', `جاري حفظ البيانات إلى Firebase...`);
-            const messageModalButtons = document.getElementById('message-modal-buttons');
-            messageModalButtons.innerHTML = `<div class="loader mx-auto"></div>`;
-
-            try {
-                // (السطر الجديد الصحيح)
-                const dataDocRef = doc(dbFirebase, ...dataPath);
-await setDoc(dataDocRef, { 
-    ...localData, 
-    lastSync: serverTimestamp(),
-    lastSyncDeviceId: myDeviceId // <-- أضف هذا الحقل الجديد
-});
-lastFirebaseSyncDateEl.textContent = new Date().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
-                showToast('تم حفظ البيانات بنجاح في Firebase!', 'success');
-            } catch (error) {
-                console.error("Error saving data to Firestore:", error);
-                showToast(`فشل حفظ البيانات في Firebase: ${error.message}`, 'error');
-            } finally {
-                closeModal('message-modal');
-            }
-        }
-
-        async function restoreDataFromFirestore() {
-            const dataPath = getFirestoreDataPath();
-            if (!dataPath) {
-                showToast('لا يمكن تحديد مسار البيانات. يرجى التأكد من تسجيل الدخول أو تفعيل وضع الامبراطور.', 'error');
-                if (!isEmperorModeActive && !currentFirebaseUser) openAuthModal(true);
-                return;
-            }
-             if (!auth.currentUser) {
-                showToast('جاري تهيئة الاتصال بالسحابة، يرجى المحاولة بعد لحظات.', 'error');
-                await initializeAuth();
-                 if(!auth.currentUser) {
-                     showToast('فشل الاتصال بالسحابة. لا يمكن المزامنة.', 'error');
-                     return;
-                }
-            }
-
-            showModal('message-modal', `هل أنت متأكد أنك تريد استرجاع البيانات من Firebase؟ سيتم دمجها مع البيانات المحلية الحالية. سيتم حذف جميع الصور المرتبطة بالبيانات المسترجعة من التطبيق.`);
-            const messageModalButtons = document.getElementById('message-modal-buttons');
-            messageModalButtons.innerHTML = `
-                <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
-                <button id="confirm-firebase-import-action" class="app-button app-button-primary">نعم، استرجاع من Firebase</button>
-            `;
-
-            document.getElementById('confirm-firebase-import-action').onclick = async () => {
-                closeModal('message-modal'); 
-                showModal('message-modal', `جاري استرجاع البيانات من Firebase...`); 
-                const loadingButtons = document.getElementById('message-modal-buttons');
-                loadingButtons.innerHTML = `<div class="loader mx-auto"></div>`;
-
-                try {
-                    // (السطر الجديد الصحيح)
-                    const dataDocRef = doc(dbFirebase, ...dataPath);
-                    const docSnap = await getDoc(dataDocRef);
-
-                    if (docSnap.exists()) {
-                        const firebaseData = docSnap.data();
-                        await db.open();
-
-                        // --- Handle Shoes Data: Update existing, set imageUrl to null ---
-                        const localShoes = await db.shoes.toArray();
-                        const localShoesMap = new Map(localShoes.map(shoe => [shoe.id, shoe]));
-
-// مثال لتعديل استعادة الأحذية (shoes) داخل restoreDataFromFirestore
-if (firebaseData.shoes) {
-    for (const firebaseShoe of firebaseData.shoes) {
-        const existingLocalShoe = localShoesMap.get(firebaseShoe.id);
-        if (existingLocalShoe) {
-            // دمج البيانات مع الحفاظ على الصورة المحلية
-            await db.shoes.put({
-                ...existingLocalShoe, // ابدأ بالبيانات المحلية (بما في ذلك الصورة)
-                ...firebaseShoe,     // ثم قم بالكتابة فوقها ببيانات Firebase (التي لا تحتوي على imageUrl)
-                                     // هذا سيحافظ على imageUrl المحلي إذا كان موجودًا.
-            });
-            localShoesMap.delete(firebaseShoe.id); // تم التعامل معه
-        } else {
-            // إضافة حذاء جديد (لن يحتوي على imageUrl من Firebase لأنه تم تجريده)
-            await db.shoes.add({ ...firebaseShoe, imageUrl: null }); // أو اترك imageUrl إذا كان موجودًا في firebaseShoe
+async function backupDataToFirestore() {
+    const dataPath = getFirestoreDataPath();
+    if (!dataPath) {
+        showToast('لا يمكن تحديد مسار البيانات. يرجى التأكد من تسجيل الدخول.', 'error');
+        if (!isEmperorModeActive && !currentFirebaseUser) openAuthModal(true);
+        return;
+    }
+     if (!auth.currentUser) {
+        showToast('جاري تهيئة الاتصال بالسحابة، يرجى المحاولة بعد لحظات.', 'error');
+        await initializeAuth();
+        if(!auth.currentUser) {
+             showToast('فشل الاتصال بالسحابة. لا يمكن المزامنة.', 'error');
+             return;
         }
     }
-}
-                        // Shoes remaining in localShoesMap were not in Firestore backup, do not delete them.
 
-                        // --- Handle Suppliers Data: Update existing, set imageUrl to null ---
-                        const localSuppliers = await db.suppliers.toArray();
-                        const localSuppliersMap = new Map(localSuppliers.map(supplier => [supplier.id, supplier]));
+    const localData = await getAllLocalData();
+    if (!localData) return;
 
-                        if (firebaseData.suppliers) {
-                            for (const firebaseSupplier of firebaseData.suppliers) {
-                                const existingLocalSupplier = localSuppliersMap.get(firebaseSupplier.id);
-                                if (existingLocalSupplier) {
-                                    // Update existing supplier, explicitly setting imageUrl to null
-                                    await db.suppliers.put({
-                                        ...firebaseSupplier,
-                                        imageUrl: null // Explicitly remove image on restore
-                                    });
-                                    localSuppliersMap.delete(firebaseSupplier.id); // Mark as processed
-                                } else {
-                                    // Add new supplier (will not have imageUrl from Firestore as it's stripped)
-                                    await db.suppliers.add(firebaseSupplier);
-                                }
-                            }
-                        }
-                        // Suppliers remaining in localSuppliersMap were not in Firestore backup, do not delete them.
+    const dataString = JSON.stringify(localData);
+    const dataSizeBytes = new TextEncoder().encode(dataString).length;
+    const ONE_MB = 1024 * 1024;
 
-                        // --- Handle Pending Sales Data: Update existing, set shoeImage to null ---
-                        const localPendingSales = await db.pendingSales.toArray();
-                        const localPendingSalesMap = new Map(localPendingSales.map(sale => [sale.id, sale]));
-
-                        if (firebaseData.pendingSales) {
-                            for (const firebaseSale of firebaseData.pendingSales) {
-                                const existingLocalSale = localPendingSalesMap.get(firebaseSale.id);
-                                if (existingLocalSale) {
-                                    // Update existing pending sale, explicitly setting shoeImage to null
-                                    await db.pendingSales.put({
-                                        ...firebaseSale,
-                                        shoeImage: null // Explicitly remove image on restore
-                                    });
-                                    localPendingSalesMap.delete(firebaseSale.id); // Mark as processed
-                                } else {
-                                    // Add new pending sale (will not have shoeImage from Firestore as it's stripped)
-                                    await db.pendingSales.add(firebaseSale);
-                                }
-                            }
-                        }
-                        // Pending sales remaining in localPendingSalesMap were not in Firestore backup, do not delete them.
-
-
-                        // --- Handle Other Data (Replace existing with Firestore data) ---
-                        // For other collections, we clear and then bulk add/put.
-                        // This assumes a full replacement is desired for non-image-sensitive data.
-if (firebaseData.sales) { await db.sales.bulkPut(firebaseData.sales); } // تحديث أو إضافة
-if (firebaseData.returns) { await db.returns.bulkPut(firebaseData.returns); } // تحديث أو إضافة
-if (firebaseData.monthlyReports) { await db.monthlyReports.bulkPut(firebaseData.monthlyReports); } // تحديث أو إضافة                
-                        // For deliveryPrices, use bulkPut to update existing or add new, based on ID
-                        if (firebaseData.deliveryPrices) { await db.deliveryPrices.bulkPut(firebaseData.deliveryPrices); }
-                        else { await db.deliveryPrices.bulkPut(getDefaultWilayaPrices()); } // Fallback to defaults if not in backup
-
-                        if (firebaseData.lastSync && firebaseData.lastSync.toDate) {
-lastFirebaseSyncDateEl.textContent = firebaseData.lastSync.toDate().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
-                        } else {
-                             lastFirebaseSyncDateEl.textContent = 'غير متوفر (بيانات قديمة)';
-                        }
-   // ابحث عن هذا الجزء داخل دالة restoreDataFromFirestore
-// ... الكود الخاص باستيراد البيانات (db.shoes.put, db.sales.bulkPut, etc.)
-
-if (docSnap.exists()) {
-    const firebaseData = docSnap.data();
-    await db.open();
-    // ...
-    // ... الكثير من كود الاستيراد ...
-    // ...
-    
-    // ▼▼▼ هذا هو الكود المضاف لإصلاح المشكلة ▼▼▼
-    // 1. نقوم بتحديث وقت المزامنة المحلي (رقم الإصدار) ليطابق وقت السحابة
-    if (firebaseData.lastSync && firebaseData.lastSync.toDate) {
-        localStorage.setItem('lastLocalSyncTimestamp', firebaseData.lastSync.toDate().getTime().toString());
+    if (dataSizeBytes > ONE_MB) {
+        showToast(`حجم البيانات كبير جدًا (${(dataSizeBytes / ONE_MB).toFixed(2)} ميغابايت). لا يمكن حفظها.`, 'error');
+        return;
     }
-    // 2. نقوم بإخفاء التنبيه فوراً لتحسين تجربة المستخدم
-    document.getElementById('firebase-sync-alert').classList.add('hidden');
-    // ▲▲▲ انتهت الإضافة ▲▲▲
 
-    showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
+    showModal('message-modal', `جاري حفظ البيانات إلى Firebase...`);
+    document.getElementById('message-modal-buttons').innerHTML = `<div class="loader mx-auto"></div>`;
 
-    // ... بقية الكود ...
-}                     
-showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
-
-// قم بتحديث الإحصائيات بشكل صريح
-if (!document.getElementById('stats-view-content').classList.contains('hidden')) {
-    displayStats();
-}
-
-// Refresh current view if applicable
-const currentViewId = document.querySelector('.main-view-section:not(.hidden)')?.id;
-if (currentViewId) {
-    navigateToView(currentViewId, document.querySelector(`.nav-item[data-target="${currentViewId.replace('-view-content', '')}"]`));
-} else {
-    navigateToView('home-view-content', document.querySelector('.nav-item[data-target="home"]')); 
-}
-                    } else {
-                        showToast('لا توجد بيانات محفوظة في Firebase لهذا المسار.', 'error');
-                        lastFirebaseSyncDateEl.textContent = 'لا توجد بيانات في السحابة';
-                    }
-                } catch (error) {
-                    console.error("Error importing data from Firestore:", error);
-                    showToast(`فشل استيراد البيانات من Firebase: ${error.message}`, 'error');
-                } finally {
-                     closeModal('message-modal');
-                }
-            };
-        }
+    try {
+        const dataDocRef = doc(dbFirebase, ...dataPath);
+        await setDoc(dataDocRef, {
+            ...localData,
+            lastSync: serverTimestamp(),
+            lastSyncDeviceId: myDeviceId
+        });
         
-        async function loadLastSyncDateFromFirebase() {
-            const dataPath = getFirestoreDataPath();
-            if (!dataPath || !auth.currentUser) { // Need auth for any Firestore op
-                 lastFirebaseSyncDateEl.textContent = isEmperorModeActive ? 'لم تتم المزامنة بعد (وضع الامبراطور)' : 'يتطلب تسجيل الدخول';
-                 return;
-            }
-            try {
-                // (السطر الجديد الصحيح)
-                const dataDocRef = doc(dbFirebase, ...dataPath);
-                const docSnap = await getDoc(dataDocRef);
-                if (docSnap.exists() && docSnap.data().lastSync && docSnap.data().lastSync.toDate) {
-lastFirebaseSyncDateEl.textContent = docSnap.data().lastSync.toDate().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
-                } else {
-                    lastFirebaseSyncDateEl.textContent = 'لم تتم المزامنة بعد';
-                }
-            } catch (error) {
-                console.warn("Could not load last sync date from Firebase:", error);
-                lastFirebaseSyncDateEl.textContent = 'خطأ في تحميل تاريخ المزامنة';
-            }
+        const syncTime = new Date();
+        localStorage.setItem('lastLocalSyncTimestamp', syncTime.getTime().toString());
+        lastFirebaseSyncDateEl.textContent = syncTime.toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+        showToast('تم حفظ البيانات بنجاح في Firebase!', 'success');
+    } catch (error) {
+        console.error("Error saving data to Firestore:", error);
+        showToast(`فشل حفظ البيانات في Firebase: ${error.message}`, 'error');
+    } finally {
+        closeModal('message-modal');
+    }
+}
+
+async function restoreDataFromFirestore() {
+    const dataPath = getFirestoreDataPath();
+    if (!dataPath) {
+        showToast('لا يمكن تحديد مسار البيانات. يرجى التأكد من تسجيل الدخول.', 'error');
+        if (!isEmperorModeActive && !currentFirebaseUser) openAuthModal(true);
+        return;
+    }
+    if (!auth.currentUser) {
+        showToast('جاري تهيئة الاتصال بالسحابة، يرجى المحاولة بعد لحظات.', 'error');
+        await initializeAuth();
+        if (!auth.currentUser) {
+            showToast('فشل الاتصال بالسحابة. لا يمكن المزامنة.', 'error');
+            return;
         }
+    }
+
+    showModal('message-modal', `هل أنت متأكد أنك تريد استرجاع البيانات من Firebase؟ سيتم دمجها مع البيانات المحلية الحالية.`);
+    document.getElementById('message-modal-buttons').innerHTML = `
+        <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
+        <button id="confirm-firebase-import-action" class="app-button app-button-primary">نعم، استرجاع</button>
+    `;
+
+    document.getElementById('confirm-firebase-import-action').onclick = async () => {
+        showModal('message-modal', `جاري استرجاع البيانات من Firebase...`);
+        document.getElementById('message-modal-buttons').innerHTML = `<div class="loader mx-auto"></div>`;
+
+        try {
+            const dataDocRef = doc(dbFirebase, ...dataPath);
+            const docSnap = await getDoc(dataDocRef);
+
+            if (docSnap.exists()) {
+                const firebaseData = docSnap.data();
+                await db.open();
+
+                // استيراد البيانات
+                if (firebaseData.shoes) {
+                    const localShoesMap = new Map((await db.shoes.toArray()).map(shoe => [shoe.id, shoe]));
+                    for (const firebaseShoe of firebaseData.shoes) {
+                        const existingLocalShoe = localShoesMap.get(firebaseShoe.id);
+                        await db.shoes.put({ ...existingLocalShoe, ...firebaseShoe });
+                    }
+                }
+                if (firebaseData.suppliers) await db.suppliers.bulkPut(firebaseData.suppliers);
+                if (firebaseData.pendingSales) await db.pendingSales.bulkPut(firebaseData.pendingSales);
+                if (firebaseData.sales) await db.sales.bulkPut(firebaseData.sales);
+                if (firebaseData.returns) await db.returns.bulkPut(firebaseData.returns);
+                if (firebaseData.monthlyReports) await db.monthlyReports.bulkPut(firebaseData.monthlyReports);
+                if (firebaseData.deliveryPrices) await db.deliveryPrices.bulkPut(firebaseData.deliveryPrices);
+                else { await db.deliveryPrices.bulkPut(getDefaultWilayaPrices()); }
+
+                // تحديث وقت المزامنة المحلي وإخفاء التنبيهات
+                if (firebaseData.lastSync && firebaseData.lastSync.toDate) {
+                    const syncTime = firebaseData.lastSync.toDate();
+                    localStorage.setItem('lastLocalSyncTimestamp', syncTime.getTime().toString());
+                    lastFirebaseSyncDateEl.textContent = syncTime.toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+                }
+
+                document.getElementById('firebase-sync-alert').classList.add('hidden');
+                document.getElementById('settings-notification-dot').classList.add('hidden');
+                
+                showToast('تم استرجاع البيانات بنجاح من Firebase!', 'success');
+
+                // تحديث الواجهة
+                const currentViewId = document.querySelector('.main-view-section:not(.hidden)')?.id;
+                navigateToView(currentViewId || 'home-view-content', document.querySelector(`.nav-item[data-target="${currentViewId?.replace('-view-content', '') || 'home'}"]`));
+            } else {
+                showToast('لا توجد بيانات محفوظة في Firebase لهذا المسار.', 'error');
+                lastFirebaseSyncDateEl.textContent = 'لا توجد بيانات في السحابة';
+            }
+        } catch (error) {
+            console.error("Error importing data from Firestore:", error);
+            showToast(`فشل استيراد البيانات: ${error.message}`, 'error');
+        } finally {
+            closeModal('message-modal');
+        }
+    };
+}
+        
+async function loadLastSyncDateFromFirebase() {
+    const dataPath = getFirestoreDataPath();
+    if (!dataPath || !auth.currentUser) {
+         lastFirebaseSyncDateEl.textContent = 'يتطلب تسجيل الدخول';
+         return;
+    }
+    try {
+        const dataDocRef = doc(dbFirebase, ...dataPath);
+        const docSnap = await getDoc(dataDocRef);
+        if (docSnap.exists() && docSnap.data().lastSync && docSnap.data().lastSync.toDate) {
+            lastFirebaseSyncDateEl.textContent = docSnap.data().lastSync.toDate().toLocaleString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+        } else {
+            lastFirebaseSyncDateEl.textContent = 'لم تتم المزامنة بعد';
+        }
+    } catch (error) {
+        console.warn("Could not load last sync date from Firebase:", error);
+        lastFirebaseSyncDateEl.textContent = 'خطأ في تحميل تاريخ المزامنة';
+    }
+}
+
+// ▲▲▲ انتهي من النسخ هنا ▲▲▲
 
         // Event listeners for Firebase sync buttons
         if(saveDataToFirebaseButton) saveDataToFirebaseButton.addEventListener('click', backupDataToFirestore); // Changed to new function
@@ -4335,6 +4244,7 @@ document.getElementById('details-supplier-modal-added-date').textContent = new D
         displayPendingSales();
     }
 }
+
         window.navigateToView = function(viewId, tabElement) { /* ... same as original ... */ 
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(i => i.classList.remove('active'));
@@ -4358,6 +4268,7 @@ document.getElementById('details-supplier-modal-added-date').textContent = new D
             }
             showView(viewId);
         }
+ 
 
         // --- Global Search ---
         window.openGlobalSearchModal = function() { /* ... same as original ... */ 
@@ -5018,17 +4929,21 @@ document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach
 });
 // ▼▼▼ أضف هذه الدالة الجديدة بالكامل ▼▼▼
 // ▼▼▼ قم باستبدال الدالة القديمة بهذه الدالة الجديدة بالكامل ▼▼▼
+// ▼▼▼ الصق هذا الكود النظيف والصحيح بالكامل ▼▼▼
 async function setupRealtimeSyncListener() {
     if (firestoreListenerUnsubscribe) {
-        firestoreListenerUnsubscribe();
+        firestoreListenerUnsubscribe(); // أوقف المستمع القديم أولاً
         firestoreListenerUnsubscribe = null;
     }
-    if (!currentUserId) return;
-    
+
+    if (!currentUserId) return; // لا تقم بإعداد مستمع جديد إذا لم يكن هناك مستخدم
+
     const dataDocRef = doc(dbFirebase, ...getFirestoreDataPath());
     const syncAlert = document.getElementById('firebase-sync-alert');
+    const settingsDot = document.getElementById('settings-notification-dot');
 
     firestoreListenerUnsubscribe = onSnapshot(dataDocRef, (docSnap) => {
+        console.log("Realtime sync listener fired.");
         if (!docSnap.exists() || !docSnap.data().lastSync) {
             return; // لا تفعل شيئاً إذا لم يكن هناك بيانات أو تاريخ مزامنة
         }
@@ -5036,27 +4951,29 @@ async function setupRealtimeSyncListener() {
         const firebaseData = docSnap.data();
         const firebaseSyncTime = firebaseData.lastSync.toDate().getTime();
 
-        // **المنطق الجديد والذكي هنا**
         // هل هذا التحديث قادم من جهازي أنا؟
         if (firebaseData.lastSyncDeviceId === myDeviceId) {
-            // نعم، هذا تحديثي. فقط قم بتحديث الوقت المحلي واخرج.
             localStorage.setItem('lastLocalSyncTimestamp', firebaseSyncTime.toString());
-            console.log("Self-update detected. Local timestamp updated.");
+            console.log("Self-update detected. Local timestamp updated. No alert needed.");
             return; 
         }
 
         // إذا وصلنا إلى هنا، فالتحديث قادم من جهاز آخر.
-        // الآن نقوم بالمقارنة بشكل آمن.
         const localSyncTime = localStorage.getItem('lastLocalSyncTimestamp');
 
         if (!localSyncTime || firebaseSyncTime > parseInt(localSyncTime)) {
-            syncAlert.classList.remove('hidden'); // أظهر التنبيه
+            syncAlert.classList.remove('hidden');
+            if (settingsDot) settingsDot.classList.remove('hidden');
+            console.log("New data from another device detected. Showing alert.");
         } else {
-            syncAlert.classList.add('hidden'); // أخفِ التنبيه
+            syncAlert.classList.add('hidden');
+            if (settingsDot) settingsDot.classList.add('hidden');
         }
     });
-}
 
+    console.log("Realtime sync listener setup for user:", currentUserId);
+}
+// ▲▲▲ نهاية الكود الصحيح للدالة ▲▲▲
 // داخل onAuthStateChanged
 onAuthStateChanged(auth, async (user) => {
     // ... الكود الحالي ...

@@ -1132,6 +1132,50 @@
     }
     /* ▲▲▲ انتهت الإضافة ▲▲▲ */
 }
+/* ▼▼▼ أضف هذا الكود في نهاية قسم <style> ▼▼▼ */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+input:checked + .slider {
+  background-color: var(--primary-color);
+}
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+.slider.round {
+  border-radius: 28px;
+}
+.slider.round:before {
+  border-radius: 50%;
+}
     </style>
 </head>
 <body> 
@@ -1167,323 +1211,220 @@
 
         <main class="main-content">
             <div class="container mx-auto">
-                <div id="home-view-content" class="main-view-section">
-                    <div class="welcome-banner">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h2 class="text-xl font-semibold">مرحباً بك مجدداً!</h2>
-                                <p id="current-date" class="text-xs opacity-85 mt-1">تاريخ اليوم: </p>
-                            </div>
-                            <div class="welcome-banner-actions flex items-center gap-3">
-                                <button id="theme-toggle-button" aria-label="Toggle theme">
-                                    <i class="fas fa-moon"></i> 
-                                </button>
-                                <button id="open-global-search-button" aria-label="Global search">
-                                    <i class="fas fa-search fa-lg"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-5"> 
-                        <div class="action-card" onclick="openSellShoeModal()">
-                            <i class="fas fa-cash-register icon-bg-sell"></i><p>تسجيل بيع جديد</p>
-                        </div>
-                        <div class="action-card" onclick="openAddShoeModal()">
-                            <i class="fas fa-plus-circle icon-bg-add"></i><p>إضافة حذاء</p>
-                        </div>
-                        <div class="action-card" onclick="navigateToView('stats-view-content', document.querySelector('.nav-item[data-target=\'stats\']'))">
-                            <i class="fas fa-chart-line icon-bg-stats"></i><p>عرض الإحصائيات</p>
-                        </div>
-                        <div class="action-card" onclick="navigateToView('inventory-view-content', document.querySelector('.nav-item[data-target=\'inventory\']'))"> 
-                            <i class="fas fa-boxes-stacked icon-bg-inventory"></i><p>إدارة المخزون</p>
-                        </div>
-                        <div class="action-card" onclick="navigateToView('daily-sales-confirmation-view-content', null)"> 
-                            <i class="fas fa-tasks icon-bg-confirm"></i><p>تأكيد المبيعات</p>
-                        </div>
-                        <div class="action-card" onclick="navigateToView('other-services-view-content', null)"> 
-                            <i class="fas fa-cogs icon-bg-other-services"></i><p>خدمات أخرى</p>
-                        </div>
-                        <div class="action-card" onclick="navigateToView('ai-sales-advisor-view-content', null)"> 
-                            <i class="fas fa-brain icon-bg-ai"></i><p>المستشار الذكي</p>
-                        </div>
-                         <div class="action-card" onclick="navigateToView('returns-view-content', null)">
-                            <i class="fas fa-exchange-alt icon-bg-returns"></i><p>إدارة المرتجعات</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="inventory-view-content" class="main-view-section hidden">
-                    <div class="flex justify-center gap-2 mb-6" id="shoe-filter-buttons">
-                        <button class="app-button filter-button active" data-category="all">الكل</button>
-                        <button class="app-button filter-button" data-category="رجالية">رجالية</button>
-                        <button class="app-button filter-button" data-category="نسائية">نسائية</button>
-                        <button class="app-button filter-button" data-category="أطفال">أطفال</button>
-                    </div>
-                    <div id="shoe-display-area"></div>
-                    <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
-                
+<div id="home-view-content" class="main-view-section">
+    <div class="welcome-banner">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-semibold">مرحباً بك مجدداً!</h2>
+                <p id="current-date" class="text-xs opacity-85 mt-1">تاريخ اليوم: </p>
+            </div>
+            <div class="welcome-banner-actions flex items-center gap-3">
+                <button id="theme-toggle-button" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                <button id="open-global-search-button" aria-label="Global search"><i class="fas fa-search fa-lg"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-5"> 
+        <div class="action-card" onclick="openSellShoeModal()"><i class="fas fa-cash-register icon-bg-sell"></i><p>تسجيل بيع جديد</p></div>
+        <div class="action-card" onclick="openAddShoeModal()"><i class="fas fa-plus-circle icon-bg-add"></i><p>إضافة حذاء</p></div>
+        <div class="action-card" onclick="navigateToView('stats-view-content', document.querySelector('.nav-item[data-target=\'stats\']'))"><i class="fas fa-chart-line icon-bg-stats"></i><p>عرض الإحصائيات</p></div>
+        <div class="action-card" onclick="navigateToView('inventory-view-content', document.querySelector('.nav-item[data-target=\'inventory\']'))"><i class="fas fa-boxes-stacked icon-bg-inventory"></i><p>إدارة المخزون</p></div>
+        <div class="action-card" onclick="navigateToView('daily-sales-confirmation-view-content', null)"><i class="fas fa-tasks icon-bg-confirm"></i><p>تأكيد المبيعات</p></div>
+        <div class="action-card" onclick="navigateToView('other-services-view-content', null)"><i class="fas fa-cogs icon-bg-other-services"></i><p>خدمات أخرى</p></div>
+        <div class="action-card" onclick="navigateToView('ai-sales-advisor-view-content', null)"><i class="fas fa-brain icon-bg-ai"></i><p>المستشار الذكي</p></div>
+        <div class="action-card" onclick="navigateToView('returns-view-content', null)"><i class="fas fa-exchange-alt icon-bg-returns"></i><p>إدارة المرتجعات</p></div>
+    </div>
+</div>
+
+<div id="inventory-view-content" class="main-view-section hidden">
+    <div class="flex justify-center gap-2 mb-6" id="shoe-filter-buttons">
+        <button class="app-button filter-button active" data-category="all">الكل</button>
+        <button class="app-button filter-button" data-category="رجالية">رجالية</button>
+        <button class="app-button filter-button" data-category="نسائية">نسائية</button>
+        <button class="app-button filter-button" data-category="أطفال">أطفال</button>
+    </div>
+    <div id="shoe-display-area"></div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
+</div>
+
 <div id="stats-view-content" class="main-view-section hidden">
     <h3 class="view-title">نظرة عامة على الإحصائيات</h3>
     <div id="stats-summary-cards" class="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-6"></div>
-    
     <div id="monthly-sales-section-in-stats" class="mt-6">
        <h4 class="section-title">تقرير المبيعات الشهرية</h4>
-       <div id="monthly-sales-display-area-stats">
-       </div>
+       <div id="monthly-sales-display-area-stats"></div>
     </div>
-
     <div id="detailed-monthly-report-section" class="mt-8">
-    <div class="flex justify-between items-center mb-4">
-        </button>
-    </div>
-<div id="detailed-monthly-sales-container" class="hidden bg-card-background-color p-4 rounded-lg shadow-md overflow-x-auto">
-</div>
-</div>
-           <h4 class="section-title text-right">طباعة </h4> <!-- العنوان سيأخذ عرضه الكامل ومحاذاة لليمين. الكلاس section-title يوفر margin-bottom -->
-        <div class="text-center mb-4"> <!-- حاوية جديدة لتوسيط الزر. mb-4 للحفاظ على التباعد السفلي الذي كان على الحاوية الأصلية -->
-    <h4 class="section-title text-right"> </h4>
-    <div class="text-right mb-4"> <!-- تم تغيير text-center إلى text-right لمحاذاة الزر إلى أقصى اليمين -->
-            <button onclick="window.print()" class="app-button app-button-secondary px-4 py-2 text-sm">
-                <i class="fas fa-print mr-2"> </i> طباعة التقرير
-            </button>
+        <h4 class="section-title text-right">طباعة</h4>
+        <div class="text-right mb-4">
+            <button onclick="window.print()" class="app-button app-button-secondary px-4 py-2 text-sm"><i class="fas fa-print mr-2"></i> طباعة التقرير</button>
         </div>
-        <div id="detailed-monthly-sales-container" class="hidden bg-card-background-color p-4 rounded-lg shadow-md overflow-x-auto">
-        </div>
+        <div id="detailed-monthly-sales-container" class="hidden bg-card-background-color p-4 rounded-lg shadow-md overflow-x-auto"></div>
     </div>
-    <!-- تم إزالة div المكرر الذي يحمل id="detailed-monthly-sales-container" من هنا -->
-
-
-    <div class="back-button-container">
-       <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-   </div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
 </div>
 
 <div id="other-services-view-content" class="main-view-section hidden">
     <h3 class="view-title">خدمات أخرى</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)">
-            <i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p>
-        </div>
-        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)">
-            <i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p>
-        </div>
+        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
+        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
     </div>
-
     <div id="stock-alerts-section-in-stats" class="mt-6"> 
        <h4 class="section-title">تنبيهات نقص المخزون</h4>
        <div class="mb-4 bg-card-background-color p-4 rounded-lg shadow-sm"> 
            <label for="stock-alert-threshold-stats" class="form-label">تنبيه إذا كانت الكمية أقل من أو تساوي:</label>
            <div class="flex items-center gap-3">
                <input type="number" id="stock-alert-threshold-stats" class="form-input w-24 text-sm py-2" value="1" min="0">
-               <button id="refresh-stock-alerts-button-stats" class="app-button app-button-secondary px-4 py-2 text-xs">
-                   <i class="fas fa-sync-alt mr-1"></i> تحديث
-               </button>
+               <button id="refresh-stock-alerts-button-stats" class="app-button app-button-secondary px-4 py-2 text-xs"><i class="fas fa-sync-alt mr-1"></i> تحديث</button>
            </div>
        </div>
-       <div id="stock-alerts-list-area-stats" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-       </div>
+       <div id="stock-alerts-list-area-stats" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
-
     <div id="best-selling-shoes-section" class="mt-6">
        <h4 class="section-title">الأحذية الأكثر مبيعًا</h4>
        <div id="best-selling-shoes-list" class="text-sm bg-card-background-color p-4 rounded-lg shadow-sm"></div> 
     </div>
-    <div class="back-button-container">
-        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-    </div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
 </div>
 
-                <div id="delivery-services-view-content" class="main-view-section hidden">
-                    <h3 class="view-title">أسعار خدمات التوصيل</h3>
-                    <div class="mb-4">
-                        <input type="text" id="search-delivery-wilaya-input" class="form-input" placeholder="ابحث عن ولاية...">
-                    </div>
-                    <div id="delivery-prices-display-area" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    </div>
-                    <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)"><i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى</button>
-                    </div>
-                </div>
+<div id="delivery-services-view-content" class="main-view-section hidden">
+    <h3 class="view-title">أسعار خدمات التوصيل</h3>
+    <div class="mb-4"><input type="text" id="search-delivery-wilaya-input" class="form-input" placeholder="ابحث عن ولاية..."></div>
+    <div id="delivery-prices-display-area" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)"><i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى</button></div>
+</div>
 
-                <div id="suppliers-view-content" class="main-view-section hidden">
-                    <div class="flex justify-center items-center mb-6"> 
-                        <button onclick="openAddSupplierModal()" class="app-button app-button-primary">
-                            <i class="fas fa-plus mr-2"></i> إضافة مورد جديد
-                        </button>
-                    </div>
-                    <div id="suppliers-list-area" class="mt-2">
-                        </div>
-                    <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)"><i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى</button>
-                    </div>
-                </div>
-                
-                <div id="ai-sales-advisor-view-content" class="main-view-section hidden">
-                    <h3 class="view-title">المساعد الذكي AI</h3>
-                    <div id="ai-options-container" class="mb-4">
-                         <button id="ai-chat-option-button" class="app-button ai-option-button w-full mb-3">
-                            <i class="fas fa-comments"></i> محادثة مع المساعد الذكي
-                        </button>
-                        <button id="ai-analysis-option-button" class="app-button ai-option-button w-full">
-                            <i class="fas fa-chart-pie"></i> تحليل ذكي للمبيعات والمخزون
-                        </button>
-                    </div>
+<div id="suppliers-view-content" class="main-view-section hidden">
+    <div class="flex justify-center items-center mb-6"><button onclick="openAddSupplierModal()" class="app-button app-button-primary"><i class="fas fa-plus mr-2"></i> إضافة مورد جديد</button></div>
+    <div id="suppliers-list-area" class="mt-2"></div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)"><i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى</button></div>
+</div>
 
-                    <div id="ai-chat-interface" class="hidden">
-                        <div id="ai-chat-area" class="mb-3">
-                        </div>
-                        <div class="flex gap-2 items-center">
-                            <input type="text" id="ai-chat-input" class="form-input flex-grow" placeholder="اكتب رسالتك هنا...">
-                            <button id="send-ai-chat-message-button" class="app-button app-button-primary px-4 py-2.5 text-sm">
-                                <i class="fas fa-paper-plane"></i> 
-                            </button>
-                        </div>
-                        <div id="ai-chat-loading-indicator" class="mt-2 text-sm text-gray-500 hidden items-center">
-                            <div class="gemini-loader inline-block mr-2" style="width:16px; height:16px; border-width:2px;"></div>
-                            المساعد الذكي يفكر...
-                        </div>
-                    </div>
+<div id="ai-sales-advisor-view-content" class="main-view-section hidden">
+    <h3 class="view-title">المساعد الذكي AI</h3>
+    <div id="ai-options-container" class="mb-4">
+         <button id="ai-chat-option-button" class="app-button ai-option-button w-full mb-3"><i class="fas fa-comments"></i> محادثة مع المساعد الذكي</button>
+        <button id="ai-analysis-option-button" class="app-button ai-option-button w-full"><i class="fas fa-chart-pie"></i> تحليل ذكي للمبيعات والمخزون</button>
+    </div>
+    <div id="ai-chat-interface" class="hidden">
+        <div id="ai-chat-area" class="mb-3"></div>
+        <div class="flex gap-2 items-center">
+            <input type="text" id="ai-chat-input" class="form-input flex-grow" placeholder="اكتب رسالتك هنا...">
+            <button id="send-ai-chat-message-button" class="app-button app-button-primary px-4 py-2.5 text-sm"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div id="ai-chat-loading-indicator" class="mt-2 text-sm text-text-color-secondary hidden items-center">
+    <div class="gemini-loader inline-block mr-2" style="width:16px; height:16px; border-width:2px;"></div>
+    المساعد الذكي يفكر...
+</div>
+    </div>
+    <div id="ai-analysis-interface" class="hidden">
+        <h4 class="section-title">نصيحة المساعد الذكي:</h4>
+        <div id="ai-sales-advisor-response-area"><p class="text-gray-500">اضغط على زر "تحليل ذكي" أعلاه للحصول على نصائح...</p></div>
+    </div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
+</div>
 
-                    <div id="ai-analysis-interface" class="hidden">
-                        <h4 class="section-title">نصيحة المساعد الذكي:</h4>
-                        <div id="ai-sales-advisor-response-area">
-                            <p class="text-gray-500">اضغط على زر "تحليل ذكي" أعلاه للحصول على نصائح...</p>
-                        </div>
-                    </div>
-
-                    <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
-                
-                <div id="returns-view-content" class="main-view-section hidden">
-                    <h3 class="view-title">إدارة قائمة الإرجاع</h3>
-                    <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6"> 
-                        <h4 class="section-title mb-4" id="add-return-form-title">إضافة عميل إلى قائمة الإرجاع</h4>
-                        <form id="add-return-form">
-                            <input type="hidden" id="editing-return-id">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5">
-                                <div>
-                                    <label for="return-customer-name" class="form-label">اسم العميل:</label>
-                                    <input type="text" id="return-customer-name" class="form-input">
-                                </div>
-                                <div>
-                                    <label for="return-customer-lastname" class="form-label">لقب العميل:</label>
-                                    <input type="text" id="return-customer-lastname" class="form-input">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="return-customer-phone" class="form-label">رقم هاتف العميل (إلزامي):</label>
-                                <input type="tel" id="return-customer-phone" class="form-input" required>
-                            </div>
-                            <div>
-                                <label for="return-notes" class="form-label">ملاحظات (سبب الإرجاع، الحذاء المرجع، إلخ):</label>
-                                <textarea id="return-notes" class="form-textarea" rows="3"></textarea>
-                            </div>
-                            <button type="submit" id="add-return-submit-button" class="app-button app-button-primary w-full mt-3">إضافة إلى القائمة</button>
-                        </form>
-                        <button id="review-returns-list-button" class="app-button app-button-secondary w-full mt-4">مراجعة القائمة الكاملة</button>
-                    </div>
-
-                    <div class="bg-card-background-color p-5 rounded-xl shadow-lg"> 
-                        <h4 class="section-title mb-4">البحث في قائمة الإرجاع</h4>
-                        <div class="flex gap-3 mb-4">
-                            <input type="tel" id="search-return-phone" class="form-input flex-grow" placeholder="أدخل رقم هاتف العميل للبحث">
-                            <button id="search-return-button" class="app-button app-button-secondary px-5 text-sm">بحث</button>
-                        </div>
-                        <div id="return-search-result-area"></div>
-                    </div>
-                    <div id="all-returns-list-area" class="mt-6 hidden bg-card-background-color p-5 rounded-xl shadow-lg"> 
-                         <h4 class="section-title mb-4">القائمة الكاملة لعمليات الإرجاع</h4>
-                         </div>
-                    <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
+<div id="returns-view-content" class="main-view-section hidden">
+    <h3 class="view-title">إدارة قائمة الإرجاع</h3>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6"> 
+        <h4 class="section-title mb-4" id="add-return-form-title">إضافة عميل إلى قائمة الإرجاع</h4>
+        <form id="add-return-form">
+            <input type="hidden" id="editing-return-id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5">
+                <div><label for="return-customer-name" class="form-label">اسم العميل:</label><input type="text" id="return-customer-name" class="form-input"></div>
+                <div><label for="return-customer-lastname" class="form-label">لقب العميل:</label><input type="text" id="return-customer-lastname" class="form-input"></div>
+            </div>
+            <div><label for="return-customer-phone" class="form-label">رقم هاتف العميل (إلزامي):</label><input type="tel" id="return-customer-phone" class="form-input" required></div>
+            <div><label for="return-notes" class="form-label">ملاحظات:</label><textarea id="return-notes" class="form-textarea" rows="3"></textarea></div>
+            <button type="submit" id="add-return-submit-button" class="app-button app-button-primary w-full mt-3">إضافة إلى القائمة</button>
+        </form>
+        <button id="review-returns-list-button" class="app-button app-button-secondary w-full mt-4">مراجعة القائمة الكاملة</button>
+    </div>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg"> 
+        <h4 class="section-title mb-4">البحث في قائمة الإرجاع</h4>
+        <div class="flex gap-3 mb-4">
+            <input type="tel" id="search-return-phone" class="form-input flex-grow" placeholder="أدخل رقم هاتف العميل للبحث">
+            <button id="search-return-button" class="app-button app-button-secondary px-5 text-sm">بحث</button>
+        </div>
+        <div id="return-search-result-area"></div>
+    </div>
+    <div id="all-returns-list-area" class="mt-6 hidden bg-card-background-color p-5 rounded-xl shadow-lg"><h4 class="section-title mb-4">القائمة الكاملة لعمليات الإرجاع</h4></div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
+</div>
 
 <div id="daily-sales-confirmation-view-content" class="main-view-section hidden">
     <h3 class="view-title">تأكيد المبيعات المعلقة</h3>
-
     <div class="flex flex-wrap justify-center gap-2 mb-6" id="pending-sale-filter-buttons">
-    <button class="app-button filter-button active" data-filter="all">الكل</button>
-    <button class="app-button filter-button" data-filter="pending">معلقة</button>
-    <button class="app-button filter-button" data-filter="shipped">تم الشحن</button>
-    <button id="date-filter-btn" class="app-button filter-button">
-        <i class="fas fa-calendar-alt mr-2"></i>الفرز حسب تاريخ
-    </button>
+        <button class="app-button filter-button active" data-filter="all">الكل</button>
+        <button class="app-button filter-button" data-filter="pending">معلقة</button>
+        <button class="app-button filter-button" data-filter="shipped">تم الشحن</button>
+        <button id="date-filter-btn" class="app-button filter-button"><i class="fas fa-calendar-alt mr-2"></i>الفرز حسب تاريخ</button>
+    </div>
+    <div id="pending-sales-area"></div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
 </div>
 
-    <div id="pending-sales-area">
+<div id="about-app-view-content" class="main-view-section hidden bg-card-background-color p-6 rounded-xl shadow-lg"> 
+    <h3 class="text-2xl font-bold text-text-color-primary mb-5 text-center">حول تطبيق Shoes Manager Pro</h3> 
+    <p class="text-text-color-secondary leading-relaxed mb-5 text-center">هذا التطبيق يساعدك على إدارة مخزون الأحذية وتتبع المبيعات بكفاءة وسهولة.</p>
+    <div class="border-t border-border-color pt-5 mt-5"> 
+        <h4 class="text-xl font-semibold text-text-color-primary mb-3 text-center">عن المطور: بلال بورابعة</h4> 
+        <p class="text-sm text-text-color-secondary leading-relaxed mb-4 text-center">مطور تطبيقات وأنظمة جزائري، شغوف بالتكنولوجيا والبرمجة.</p>
+        <div class="flex justify-center gap-6 mt-4">
+            <a href="https://www.facebook.com/billel.bouraba" id="facebook-link" class="social-link" target="_blank"><i class="fab fa-facebook-square"></i> فيسبوك</a>
+            <a href="https://www.instagram.com/billel_bouraba" id="instagram-link" class="social-link" target="_blank"><i class="fab fa-instagram"></i> انستغرام</a>
         </div>
+    </div>
+     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
+</div>
 
+<div id="settings-view-content" class="main-view-section hidden">
+    <h3 class="view-title">إعدادات التطبيق</h3>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
+    <h4 class="section-title mb-4">الإعدادات العامة</h4>
+    <button id="advanced-settings-button" class="settings-button">
+        <span>إعدادات متقدمة</span>
+        <i class="fas fa-cogs"></i>
+    </button>
+</div>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
+        <h4 class="section-title mb-4">إدارة البيانات المحلية</h4>
+        <button id="export-data-button" class="settings-button mb-3"><i class="fas fa-file-export"></i> تصدير كافة البيانات المحلية (JSON)</button>
+        <div>
+            <label for="import-data-file" class="form-label">استيراد بيانات محلية (JSON):</label>
+            <input type="file" id="import-data-file" class="form-file-input mb-2" accept=".json">
+            <button id="import-data-button" class="app-button app-button-secondary w-full text-sm">استيراد واستبدال البيانات المحلية</button>
+        </div>
+    </div>
+    <div id="firebase-sync-section" class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
+        <h4 class="section-title mb-4">مزامنة البيانات مع Firebase</h4>
+        <button id="save-data-to-firebase-button" class="settings-button mb-3"><i class="fas fa-cloud-upload-alt"></i> حفظ البيانات إلى Firebase</button>
+        <div class="relative"><button id="import-data-from-firebase-button" class="settings-button mb-3 w-full"><i class="fas fa-cloud-download-alt"></i> استيراد البيانات من Firebase</button><span id="firebase-sync-alert" class="hidden absolute top-0 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">جديد</span></div>
+        <p class="text-xs text-text-color-secondary mt-2">آخر مزامنة: <span id="last-firebase-sync-date">لم تتم المزامنة بعد</span></p>
+        <p class="text-xs text-text-color-secondary mt-1">معرف المستخدم/البيانات: <span id="current-user-id-display">N/A</span></p>
+    </div>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg"> 
+        <h4 class="section-title mb-4 text-red-600">إجراءات خطيرة</h4>
+        <button id="reset-app-button" class="settings-button danger w-full"><i class="fas fa-exclamation-triangle"></i> إعادة ضبط التطبيق (حذف كل البيانات المحلية)</button>
+    </div>
+    <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
+</div>
+
+<div id="advanced-settings-view-content" class="main-view-section hidden">
+    <h3 class="view-title">إعدادات متقدمة</h3>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
+        <h4 class="section-title mb-4">ميزات التطبيق</h4>
+        <button id="feature-toggles-button" class="settings-button">
+            <span>تفعيل وتعطيل الميزات</span>
+            <i class="fas fa-toggle-on"></i>
+        </button>
+    </div>
     <div class="back-button-container">
-         <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
+        <button class="back-button app-button app-button-secondary" onclick="navigateToView('settings-view-content', document.querySelector('.nav-item[data-target=\'settings\']'))"><i class="fas fa-arrow-right"></i> رجوع للإعدادات</button>
     </div>
 </div>
 
-                <div id="about-app-view-content" class="main-view-section hidden bg-card-background-color p-6 rounded-xl shadow-lg"> 
-                    <h3 class="text-2xl font-bold text-text-color-primary mb-5 text-center">حول تطبيق Shoes Manager Pro</h3> 
-                    <p class="text-text-color-secondary leading-relaxed mb-5 text-center"> 
-                        هذا التطبيق يساعدك على إدارة مخزون الأحذية وتتبع المبيعات بكفاءة وسهولة مع تصميم عصري واحترافي.
-                    </p>
-                    <div class="border-t border-border-color pt-5 mt-5"> 
-                        <h4 class="text-xl font-semibold text-text-color-primary mb-3 text-center">عن المطور: بلال بورابعة</h4> 
-                        <p class="text-sm text-text-color-secondary leading-relaxed mb-4 text-center"> 
-                            مطور تطبيقات وأنظمة جزائري، شغوف بالتكنولوجيا والبرمجة. أعمل على مشاريع تهدف لنشر المعرفة وتبسيط التقنيات الحديثة.
-                        </p>
-                        <div class="flex justify-center gap-6 mt-4">
-                            <a href="https://www.facebook.com/billel.bouraba" id="facebook-link" class="social-link" target="_blank"><i class="fab fa-facebook-square"></i> فيسبوك</a>
-                            <a href="https://www.instagram.com/billel_bouraba" id="instagram-link" class="social-link" target="_blank"><i class="fab fa-instagram"></i> انستغرام</a>
-                        </div>
-                    </div>
-                     <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
-
-                <div id="settings-view-content" class="main-view-section hidden">
-                     <h3 class="view-title">إعدادات التطبيق</h3>
-                     <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6"> 
-                        <h4 class="section-title mb-4">إدارة البيانات المحلية</h4>
-                        <button id="export-data-button" class="settings-button mb-3"><i class="fas fa-file-export"></i> تصدير كافة البيانات المحلية (JSON)</button>
-                        <div>
-                            <label for="import-data-file" class="form-label">استيراد بيانات محلية (JSON):</label>
-                            <input type="file" id="import-data-file" class="form-file-input mb-2" accept=".json">
-                            <button id="import-data-button" class="app-button app-button-secondary w-full text-sm">استيراد واستبدال البيانات المحلية</button>
-                        </div>
-                     </div>
-
-<div id="firebase-sync-section" class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
-    <h4 class="section-title mb-4">مزامنة البيانات مع Firebase</h4>
-
-    <button id="save-data-to-firebase-button" class="settings-button mb-3">
-        <i class="fas fa-cloud-upload-alt"></i> حفظ البيانات إلى Firebase
-    </button>
-
-    <div class="relative"> <button id="import-data-from-firebase-button" class="settings-button mb-3 w-full">
-            <i class="fas fa-cloud-download-alt"></i> استيراد البيانات من Firebase
-        </button>
-        <span id="firebase-sync-alert" class="hidden absolute top-0 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-            جديد
-        </span>
-    </div> <p class="text-xs text-text-color-secondary mt-2">آخر مزامنة: <span id="last-firebase-sync-date">لم تتم المزامنة بعد</span></p>
-    <p class="text-xs text-text-color-secondary mt-1">معرف المستخدم/البيانات: <span id="current-user-id-display">N/A</span></p>
-</div>
-
-
-                     <div class="bg-card-background-color p-5 rounded-xl shadow-lg"> 
-                        <h4 class="section-title mb-4 text-red-600">إجراءات خطيرة</h4>
-                        <button id="reset-app-button" class="settings-button danger w-full"><i class="fas fa-exclamation-triangle"></i> إعادة ضبط التطبيق (حذف كل البيانات المحلية)</button>
-                     </div>
-                     <div class="back-button-container">
-                        <button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button>
-                    </div>
-                </div>
-            </div>
-        </main>
 
         <nav class="bottom-nav"> 
             <button class="nav-item active" data-target="home">
@@ -1658,30 +1599,29 @@
     </div>
     
 <div id="edit-delivery-price-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="modal-title">تعديل بيانات التوصيل</h3>
-            <form id="edit-delivery-price-form">
-                <input type="hidden" id="editing-wilaya-id">
-                <div>
-                    <label for="wilaya-name-display" class="form-label">الولاية:</label>
-                    <input type="text" id="wilaya-name-display" class="form-input bg-gray-100" readonly>
-                </div>
-                <div>
-                    <label for="wilaya-delivery-price" class="form-label">سعر التوصيل (دج):</label>
-                    <input type="number" id="wilaya-delivery-price" class="form-input" required min="0">
-                </div>
-
-                <div class="mt-4">
-                    <label for="wilaya-delivery-notes" class="form-label">ملاحظات (أسماء المكاتب، معلومات إضافية):</label>
-                    <textarea id="wilaya-delivery-notes" class="form-textarea" rows="4" placeholder="اكتب هنا أسماء مكاتب التوصيل أو أي تفاصيل أخرى..."></textarea>
-                </div>
-                <div class="mt-6 flex justify-center gap-x-4">
-                    <button type="submit" class="app-button app-button-primary">حفظ التعديلات</button>
-                    <button type="button" onclick="closeModal('edit-delivery-price-modal')" class="app-button app-button-secondary">إلغاء</button>
-                </div>
-            </form>
-        </div>
+    <div class="modal-content">
+        <h3 class="modal-title">تعديل بيانات التوصيل</h3>
+        <form id="edit-delivery-price-form">
+            <input type="hidden" id="editing-wilaya-id">
+            <div>
+                <label for="wilaya-name-display" class="form-label">اسم الولاية:</label>
+                <input type="text" id="wilaya-name-display" class="form-input" required> 
+            </div>
+            <div>
+                <label for="wilaya-delivery-price" class="form-label">سعر التوصيل (دج):</label>
+                <input type="number" id="wilaya-delivery-price" class="form-input" required min="0">
+            </div>
+            <div class="mt-4">
+                <label for="wilaya-delivery-notes" class="form-label">ملاحظات (أسماء المكاتب، معلومات إضافية):</label>
+                <textarea id="wilaya-delivery-notes" class="form-textarea" rows="4" placeholder="اكتب هنا أسماء مكاتب التوصيل أو أي تفاصيل أخرى..."></textarea>
+            </div>
+            <div class="mt-6 flex justify-center gap-x-4">
+                <button type="submit" class="app-button app-button-primary">حفظ التعديلات</button>
+                <button type="button" onclick="closeModal('edit-delivery-price-modal')" class="app-button app-button-secondary">إلغاء</button>
+            </div>
+        </form>
     </div>
+</div>
 
     <div id="export-data-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1985,6 +1925,13 @@ const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { day: 'numeric
         console.error("Error displaying detailed monthly report:", error);
         container.innerHTML = '<p class="text-error-color text-center py-4">حدث خطأ أثناء تحميل التقرير.</p>';
     }
+}
+// ▼▼▼ أضف هذه الدالة الجديدة ▼▼▼
+function loadFeatureToggleSettings() {
+    const statsCardsToggle = document.getElementById('toggle-stats-cards-checkbox');
+    // القيمة الافتراضية هي 'true' (يعمل) إذا لم يكن الإعداد موجودًا
+    const setting = localStorage.getItem('setting_showStatsCards') !== 'false';
+    statsCardsToggle.checked = setting;
 }
 
         // --- DOM Elements ---
@@ -3438,23 +3385,45 @@ async function deleteShippedSale(pendingSaleId) {
 // ==========================================================
 
 // --- Statistics Display (Dexie) ---
-async function displayStats() { 
+// ▼▼▼ استبدل دالة displayStats بالكامل بهذا الكود النهائي ▼▼▼
+// ▼▼▼ استبدل دالة displayStats بالكامل بهذا الكود النهائي والمحدث ▼▼▼
+// ▼▼▼ استبدل دالة displayStats بالكامل بهذا الكود ▼▼▼
+async function displayStats() {
+    const statsSummaryContainer = document.getElementById('stats-summary-cards');
+    const monthlyReportSection = document.getElementById('monthly-sales-section-in-stats');
+    const detailedReportSection = document.getElementById('detailed-monthly-report-section');
+
+    statsSummaryContainer.innerHTML = '';
+
+    const showStatsFeature = localStorage.getItem('setting_showStatsCards') !== 'false';
+
+    if (!showStatsFeature) {
+        statsSummaryContainer.innerHTML = `
+            <div class="col-span-full text-center p-4 bg-yellow-100 dark:bg-yellow-800 border-r-4 border-yellow-500 rounded-lg">
+                <p class="font-semibold text-yellow-800 dark:text-yellow-200">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    قسم الإحصائيات معطل حاليًا من الإعدادات المتقدمة.
+                </p>
+            </div>
+        `;
+        monthlyReportSection.style.display = 'none';
+        detailedReportSection.style.display = 'none';
+        return; 
+    }
+
+    monthlyReportSection.style.display = 'block';
+    detailedReportSection.style.display = 'block';
+
     try {
         await db.open();
         const shoes = await db.shoes.toArray();
         const sales = await db.sales.toArray();
-        const statsSummaryContainer = document.getElementById('stats-summary-cards');
-
-        statsSummaryContainer.innerHTML = ''; 
-
+        
         const totalShoeTypes = shoes.length;
         let totalIndividualShoes = 0;
-        shoes.forEach(shoe => {
-            shoe.sizes.forEach(s => totalIndividualShoes += s.quantity);
-        });
+        shoes.forEach(shoe => { shoe.sizes.forEach(s => totalIndividualShoes += s.quantity); });
         const totalSalesTransactions = sales.length;
-        let totalSalesValue = 0;
-        sales.forEach(sale => totalSalesValue += sale.total);
+        const totalSalesValue = sales.reduce((sum, sale) => sum + sale.total, 0);
 
         const stats = [
             { label: 'أنواع الأحذية', value: totalShoeTypes, icon: 'fa-shoe-prints' },
@@ -4038,28 +4007,33 @@ async function displayDeliveryPrices(searchTerm = '') {
             document.getElementById('wilaya-delivery-notes').value = notes;
             showModal('edit-delivery-price-modal');
         }
+// ▼▼▼ استبدل دالة حفظ التعديلات بالكامل بهذا الكود ▼▼▼
 async function handleEditDeliveryPriceForm(event) { 
-            event.preventDefault();
-            const newPrice = parseFloat(document.getElementById('wilaya-delivery-price').value);
-            // --- إضافة: قراءة الملاحظات من الحقل ---
-            const newNotes = document.getElementById('wilaya-delivery-notes').value.trim();
+    event.preventDefault();
+    const newName = document.getElementById('wilaya-name-display').value.trim(); // <-- قراءة الاسم الجديد
+    const newPrice = parseFloat(document.getElementById('wilaya-delivery-price').value);
+    const newNotes = document.getElementById('wilaya-delivery-notes').value.trim();
 
-            if (isNaN(newPrice) || newPrice < 0) {
-                showToast('الرجاء إدخال سعر توصيل صالح.', 'error');
-                return;
-            }
-            try {
-                await db.open();
-                // --- تعديل: إضافة الملاحظات عند التحديث ---
-                await db.deliveryPrices.update(currentEditingWilayaId, { price: newPrice, notes: newNotes });
-                showToast('تم تحديث بيانات التوصيل بنجاح.');
-                displayDeliveryPrices(document.getElementById('search-delivery-wilaya-input').value.trim()); 
-                closeModal('edit-delivery-price-modal');
-            } catch (error) {
-                 console.error("Error updating delivery price in Dexie:", error);
-                 showToast('خطأ في تحديث البيانات.', 'error');
-            }
-        }
+    if (!newName) {
+        showToast('اسم الولاية لا يمكن أن يكون فارغًا.', 'error');
+        return;
+    }
+    if (isNaN(newPrice) || newPrice < 0) {
+        showToast('الرجاء إدخال سعر توصيل صالح.', 'error');
+        return;
+    }
+    try {
+        await db.open();
+        // --- تعديل: إضافة الاسم الجديد عند التحديث ---
+        await db.deliveryPrices.update(currentEditingWilayaId, { name: newName, price: newPrice, notes: newNotes });
+        showToast('تم تحديث بيانات التوصيل بنجاح.');
+        displayDeliveryPrices(document.getElementById('search-delivery-wilaya-input').value.trim()); 
+        closeModal('edit-delivery-price-modal');
+    } catch (error) {
+         console.error("Error updating delivery price in Dexie:", error);
+         showToast('خطأ في تحديث البيانات.', 'error');
+    }
+}
 
         // --- Suppliers Management (Dexie) ---
         window.openAddSupplierModal = async function(supplierIdToEdit = null) { /* ... same as original ... */ 
@@ -4721,6 +4695,9 @@ const saleDate = new Date(sale.date).toLocaleDateString('ar-EG', { year: 'numeri
 window.addEventListener('load', async () => { 
     // سيقوم onAuthStateChanged بالباقي
     console.log("Page loaded. Auth state listener is now active.");
+    document.getElementById('advanced-settings-button').addEventListener('click', () => {
+    navigateToView('advanced-settings-view-content', null);
+});
 
     // ربط الأحداث التي لا تعتمد على حالة الدخول
     const currentDateEl = document.getElementById('current-date');
@@ -4758,6 +4735,21 @@ const options = { year: 'numeric', month: 'long', day: 'numeric', numberingSyste
         });
     });
 
+    // ▼▼▼ أضف هذا الكود داخل دالة window.addEventListener('load',...) ▼▼▼
+// استدعاء الدالة عند تحميل الصفحة
+loadFeatureToggleSettings();
+
+// ربط زر فتح النافذة
+document.getElementById('feature-toggles-button').addEventListener('click', () => {
+    showModal('feature-toggles-modal');
+});
+
+// ربط مفتاح التفعيل لحفظ الاختيار
+const statsCardsToggle = document.getElementById('toggle-stats-cards-checkbox');
+statsCardsToggle.addEventListener('change', function() {
+    localStorage.setItem('setting_showStatsCards', this.checked);
+    showToast(`تم ${this.checked ? 'تفعيل' : 'تعطيل'} عرض بطاقات الإحصائيات.`, 'success');
+});
     // ربط بقية الأحداث... (تأكد من وجود هذه الأكواد)
     document.getElementById('add-shoe-form').addEventListener('submit', saveShoeData);
     document.getElementById('edit-delivery-price-form').addEventListener('submit', handleEditDeliveryPriceForm);
@@ -5079,5 +5071,22 @@ function getMyDeviceId() {
 const myDeviceId = getMyDeviceId();
 // ▲▲▲ انتهت إضافة كود الهوية ▲▲▲
     </script>
+   <div id="feature-toggles-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="modal-title">تفعيل وتعطيل الميزات</h3>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-background-color rounded-lg border border-border-color">
+                <label for="toggle-stats-cards-checkbox" class="font-semibold text-text-color-primary">عرض بطاقات الإحصائيات الرئيسية</label>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-stats-cards-checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            </div>
+        <div class="mt-6 flex justify-center">
+            <button type="button" onclick="closeModal('feature-toggles-modal')" class="app-button app-button-secondary">إغلاق</button>
+        </div>
+    </div>
+</div> 
 </body>
 </html>

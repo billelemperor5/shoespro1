@@ -1603,6 +1603,9 @@
                 <div>
                     <label for="sell-shoe-select" class="form-label">اختر الحذاء:</label>
                     <select id="sell-shoe-select" class="form-select" required></select>
+                    <div id="shoe-preview-container" class="my-3 text-center hidden">
+    <img id="shoe-preview-image" src="#" alt="معاينة الحذاء" class="w-32 h-32 object-cover rounded-lg inline-block border-2 border-border-color">
+</div>
                 </div>
                 <div>
                     <label for="sell-shoe-size-select" class="form-label">اختر المقاس:</label>
@@ -3021,38 +3024,61 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
                 showToast('خطأ في تحميل الأحذية.', 'error');
             }
 
-            shoeSelect.onchange = async function() {
-                const selectedShoeId = this.value;
-                sizeSelect.innerHTML = '<option value="">-- اختر مقاس --</option>';
-                sizeSelect.disabled = true;
-                availableQuantityText.textContent = 'الكمية المتوفرة: -';
-                document.getElementById('sell-quantity').value = 1; 
-                if (!selectedShoeId) return;
+// (استبدل الدالة onchange القديمة بهذه النسخة المعدلة)
+shoeSelect.onchange = async function() {
+    const selectedShoeId = this.value;
 
-                try {
-                    await db.open();
-                    const selectedShoe = await db.shoes.get(selectedShoeId);
-                    if (selectedShoe && selectedShoe.sizes) {
-                        selectedShoe.sizes.forEach(sizeInfo => {
-                            if (sizeInfo.quantity > 0) {
-                                const sizeOption = document.createElement('option');
-                                sizeOption.value = sizeInfo.size;
-                                sizeOption.textContent = `${sizeInfo.size} (متوفر: ${sizeInfo.quantity})`;
-                                sizeOption.dataset.available = sizeInfo.quantity; 
-                                sizeSelect.appendChild(sizeOption);
-                            }
-                        });
-                        sizeSelect.disabled = false;
-                        if (sizeSelect.options.length === 2) { 
-                            sizeSelect.selectedIndex = 1;
-                            sizeSelect.dispatchEvent(new Event('change'));
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error fetching shoe sizes for sale:", error);
-                    showToast('خطأ في تحميل مقاسات الحذاء.', 'error');
+    // ▼▼▼ بداية الإضافة الجديدة ▼▼▼
+    const previewContainer = document.getElementById('shoe-preview-container');
+    const previewImage = document.getElementById('shoe-preview-image');
+    // ▲▲▲ نهاية الإضافة الجديدة ▲▲▲
+
+    sizeSelect.innerHTML = '<option value="">-- اختر مقاس --</option>';
+    sizeSelect.disabled = true;
+    availableQuantityText.textContent = 'الكمية المتوفرة: -';
+    document.getElementById('sell-quantity').value = 1;
+
+    // ▼▼▼ تعديل بسيط هنا لإخفاء الصورة عند عدم الاختيار ▼▼▼
+    if (!selectedShoeId) {
+        previewContainer.classList.add('hidden'); // إخفاء الحاوية
+        return;
+    }
+    // ▲▲▲ نهاية التعديل ▲▲▲
+
+    try {
+        await db.open();
+        const selectedShoe = await db.shoes.get(selectedShoeId);
+
+        // ▼▼▼ بداية الإضافة الجديدة لعرض الصورة ▼▼▼
+        if (selectedShoe && selectedShoe.imageUrl) {
+            previewImage.src = selectedShoe.imageUrl; // وضع رابط الصورة
+            previewContainer.classList.remove('hidden'); // إظهار الحاوية
+        } else {
+            previewContainer.classList.add('hidden'); // إخفاء الحاوية إذا لم توجد صورة
+        }
+        // ▲▲▲ نهاية الإضافة الجديدة ▲▲▲
+
+        if (selectedShoe && selectedShoe.sizes) {
+            selectedShoe.sizes.forEach(sizeInfo => {
+                if (sizeInfo.quantity > 0) {
+                    const sizeOption = document.createElement('option');
+                    sizeOption.value = sizeInfo.size;
+                    sizeOption.textContent = `${sizeInfo.size} (متوفر: ${sizeInfo.quantity})`;
+                    sizeOption.dataset.available = sizeInfo.quantity; 
+                    sizeSelect.appendChild(sizeOption);
                 }
-            };
+            });
+            sizeSelect.disabled = false;
+            if (sizeSelect.options.length === 2) { 
+                sizeSelect.selectedIndex = 1;
+                sizeSelect.dispatchEvent(new Event('change'));
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching shoe sizes for sale:", error);
+        showToast('خطأ في تحميل مقاسات الحذاء.', 'error');
+    }
+};
             
             sizeSelect.onchange = function() {
                 const selectedSizeOption = this.options[this.selectedIndex];
@@ -3235,11 +3261,15 @@ async function displayPendingSales(options = {}, page = 1) {
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 flex justify-end gap-3 pending-sale-actions">
-                    <button data-action="confirm-sale" data-id="${sale.id}" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
-                    <button data-action="confirm-shipping" data-id="${sale.id}" class="${shippingButtonClasses}" ${shippingButtonDisabled}>${shippingButtonText}</button>
-                    <button data-action="cancel-sale" data-id="${sale.id}" class="app-button bg-red-500 hover:bg-red-600 text-white">إلغاء البيع</button>
-                </div>
+            <div class="mt-4 flex justify-end gap-3 pending-sale-actions">
+                <button data-action="confirm-sale" data-id="${sale.id}" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
+                <button data-action="confirm-shipping" data-id="${sale.id}" class="${shippingButtonClasses}" ${shippingButtonDisabled}>${shippingButtonText}</button>
+                <button data-action="cancel-sale" data-id="${sale.id}" class="app-button bg-orange-500 hover:bg-orange-600 text-white">إلغاء البيع</button>
+                ${sale.shippingConfirmed 
+                    ? `<button data-action="delete-shipped-sale" data-id="${sale.id}" class="app-button app-button-danger">حذف</button>` 
+                    : ''
+                }
+            </div>
             `;
             pendingSalesArea.appendChild(card);
         });
@@ -3367,8 +3397,41 @@ document.getElementById('pending-sales-area').addEventListener('click', function
         }
     } else if (action === 'cancel-sale') {
         cancelPendingSale(saleId);
+    } else if (action === 'delete-shipped-sale') { // ▼▼▼ هذا هو السطر الجديد ▼▼▼
+        deleteShippedSale(saleId);                  // ▼▼▼ وهذا أيضاً ▼▼▼
     }
 });
+// (إضافة جديدة) دالة الحذف النهائي للبيع المشحون
+async function deleteShippedSale(pendingSaleId) {
+    showModal('message-modal', 'هل أنت متأكد من حذف هذا البيع المشحون نهائياً؟ لن يتم إرجاع الكمية إلى المخزون ولا يمكن التراجع عن هذا الإجراء.');
+    const messageModalButtons = document.getElementById('message-modal-buttons');
+    messageModalButtons.innerHTML = `
+        <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
+        <button id="confirm-delete-action" class="app-button app-button-danger">نعم، حذف نهائي</button>
+    `;
+
+    document.getElementById('confirm-delete-action').onclick = async () => {
+        try {
+            await db.open();
+            const saleToDelete = await db.pendingSales.get(pendingSaleId);
+            if (!saleToDelete) {
+                showToast('لم يتم العثور على البيع المطلوب حذفه.', 'error');
+                closeModal('message-modal');
+                return;
+            }
+            
+            await db.pendingSales.delete(pendingSaleId);
+            
+            closeModal('message-modal');
+            showToast(`تم حذف البيع الخاص بـ "${saleToDelete.shoeName}" نهائياً.`);
+            displayPendingSales(); // لتحديث القائمة بعد الحذف
+        } catch (error) {
+            console.error("Error deleting shipped sale:", error);
+            showToast('حدث خطأ أثناء حذف البيع.', 'error');
+            closeModal('message-modal');
+        }
+    };
+}
 
 // ==========================================================
 //  (لصق الكود التالي هنا لإصلاح صفحة الإحصائيات)

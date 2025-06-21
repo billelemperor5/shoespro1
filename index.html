@@ -89,6 +89,67 @@
             --filter-button-inactive-text: var(--primary-color-light);
             --filter-button-inactive-border: var(--primary-color);
         }
+        /* ثيم أزرق كلاسيكي */
+body.theme-blue {
+    --primary-color: #1976D2;
+    --primary-color-dark: #0D47A1;
+    --primary-color-light: #BBDEFB;
+    --accent-color: #FFC107;
+    --accent-color-dark: #FFA000;
+}
+
+/* ثيم أخضر هادئ */
+body.theme-green {
+    --primary-color: #388E3C;
+    --primary-color-dark: #1B5E20;
+    --primary-color-light: #C8E6C9;
+    --accent-color: #FF9800;
+    --accent-color-dark: #F57C00;
+}
+
+/* تصميم أزرار اختيار الثيم */
+.theme-swatch-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    background-color: var(--card-background-color);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    width: 120px;
+}
+
+.theme-swatch-button:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.theme-swatch-button.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-light);
+}
+
+.theme-swatch-button .swatch-colors {
+    display: flex;
+    gap: 5px;
+}
+
+.theme-swatch-button .swatch-colors span {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.theme-swatch-button p {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color-primary);
+}
+
 
         body {
             font-family: 'Cairo', sans-serif;
@@ -1420,6 +1481,32 @@ input:checked + .slider:before {
             <i class="fas fa-toggle-on"></i>
         </button>
     </div>
+    <div class="bg-card-background-color p-5 rounded-xl shadow-lg mb-6">
+    <h4 class="section-title mb-4">اختيار الثيم (المظهر)</h4>
+    <div id="theme-selector-container" class="flex flex-wrap gap-4 justify-center">
+        <button class="theme-swatch-button active" data-theme="default">
+            <div class="swatch-colors">
+                <span style="background-color: #6A1B9A;"></span>
+                <span style="background-color: #FFAB00;"></span>
+            </div>
+            <p>الثيم الافتراضي</p>
+        </button>
+        <button class="theme-swatch-button" data-theme="theme-blue">
+            <div class="swatch-colors">
+                <span style="background-color: #1976D2;"></span>
+                <span style="background-color: #FFC107;"></span>
+            </div>
+            <p>أزرق كلاسيكي</p>
+        </button>
+        <button class="theme-swatch-button" data-theme="theme-green">
+            <div class="swatch-colors">
+                <span style="background-color: #388E3C;"></span>
+                <span style="background-color: #FF9800;"></span>
+            </div>
+            <p>أخضر هادئ</p>
+        </button>
+    </div>
+</div>
     <div class="back-button-container">
         <button class="back-button app-button app-button-secondary" onclick="navigateToView('settings-view-content', document.querySelector('.nav-item[data-target=\'settings\']'))"><i class="fas fa-arrow-right"></i> رجوع للإعدادات</button>
     </div>
@@ -2451,6 +2538,8 @@ let currentPendingSaleFilter = 'all'; // فلتر المبيعات المعلق�
         // --- Theme Management ---
         const themeToggleButton = document.getElementById('theme-toggle-button');
         const currentTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        const APP_THEME_KEY = 'shoesManager_AppTheme_v1';
+
 
         function setTheme(theme) {
             localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -4734,6 +4823,18 @@ const options = { year: 'numeric', month: 'long', day: 'numeric', numberingSyste
             navigateToView(viewIdToNavigate, item);
         });
     });
+    // تطبيق الثيم المحفوظ عند التحميل
+const savedTheme = localStorage.getItem(APP_THEME_KEY) || 'default';
+applyTheme(savedTheme);
+
+// ربط الأزرار الجديدة
+document.getElementById('theme-selector-container').addEventListener('click', (event) => {
+    const themeButton = event.target.closest('.theme-swatch-button');
+    if (themeButton) {
+        const themeName = themeButton.dataset.theme;
+        applyTheme(themeName);
+    }
+});
 
     // ▼▼▼ أضف هذا الكود داخل دالة window.addEventListener('load',...) ▼▼▼
 // استدعاء الدالة عند تحميل الصفحة
@@ -5070,6 +5171,26 @@ function getMyDeviceId() {
 }
 const myDeviceId = getMyDeviceId();
 // ▲▲▲ انتهت إضافة كود الهوية ▲▲▲
+// ▼▼▼ أضف هذه الدالة الجديدة ▼▼▼
+function applyTheme(themeName) {
+    // إزالة أي ثيم قديم من الجسم
+    document.body.classList.remove('theme-blue', 'theme-green');
+
+    if (themeName && themeName !== 'default') {
+        document.body.classList.add(themeName);
+    }
+
+    // حفظ اختيار المستخدم
+    localStorage.setItem(APP_THEME_KEY, themeName);
+
+    // تحديث الزر النشط
+    document.querySelectorAll('.theme-swatch-button').forEach(button => {
+        button.classList.remove('active');
+        if (button.dataset.theme === themeName) {
+            button.classList.add('active');
+        }
+    });
+}
     </script>
    <div id="feature-toggles-modal" class="modal-overlay">
     <div class="modal-content">

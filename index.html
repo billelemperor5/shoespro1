@@ -1389,15 +1389,12 @@ body.dark-mode .out-of-stock-overlay {
     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-    <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
-
-    <div class="action-card" onclick="navigateToView('debts-view-content', null)">
-        <i class="fas fa-hand-holding-usd" style="background-color: #009688;"></i>
-        <p>قائمة الديون (كريدي)</p>
+<div id="other-services-view-content" class="main-view-section hidden">
+    <h3 class="view-title">خدمات أخرى</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
+        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
     </div>
-    <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
-</div>
     <div id="stock-alerts-section-in-stats" class="mt-6"> 
        <h4 class="section-title">تنبيهات نقص المخزون</h4>
        <div class="mb-4 bg-card-background-color p-4 rounded-lg shadow-sm"> 
@@ -1414,24 +1411,6 @@ body.dark-mode .out-of-stock-overlay {
        <div id="best-selling-shoes-list" class="text-sm bg-card-background-color p-4 rounded-lg shadow-sm"></div> 
     </div>
     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
-</div>
-
-<div id="debts-view-content" class="main-view-section hidden">
-    <h3 class="view-title">قائمة الديون (كريدي)</h3>
-
-    <div class="flex justify-center items-center gap-4 mb-6">
-        <button onclick="openAddDebtModal()" class="app-button app-button-primary"><i class="fas fa-plus mr-2"></i> إضافة دين جديد</button>
-        <button id="print-debts-list-button" class="app-button app-button-secondary"><i class="fas fa-print mr-2"></i> طباعة القائمة</button>
-    </div>
-
-    <div id="debts-list-area" class="mt-2">
-        </div>
-
-    <div class="back-button-container">
-        <button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)">
-            <i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى
-        </button>
-    </div>
 </div>
 
 <div id="delivery-services-view-content" class="main-view-section hidden">
@@ -1967,7 +1946,6 @@ import {
     pendingSales: 'id, shoeId, shoeImage, date, saleMonthYear, shippingConfirmed, shippingPrice', // أضفنا shippingPrice
     deliveryPrices: 'id, name',
     monthlyReports: 'monthYear, &monthYear',
-debts: '++id, customerName, balance, notes, creationDate, isPaid',
     suppliers: '++id, name, notes, imageUrl, addedDate'
         }).upgrade(async tx => {
             console.log("Upgrading database schema to version 6 to add notes for delivery prices.");
@@ -5291,72 +5269,5 @@ function applyTheme(themeName) {
         </div>
     </div>
 </div> 
-<div id="add-debt-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 class="modal-title" id="add-edit-debt-modal-title">إضافة دين جديد</h3>
-        <form id="add-debt-form">
-            <input type="hidden" id="editing-debt-id">
-            <div>
-                <label for="debt-customer-name" class="form-label">اسم الشخص:</label>
-                <input type="text" id="debt-customer-name" class="form-input" required>
-            </div>
-            <div>
-                <label for="debt-balance" class="form-label">المبلغ المطلوب (دج):</label>
-                <input type="number" id="debt-balance" class="form-input" required placeholder="أدخل المبلغ المتبقي على الشخص">
-            </div>
-            <div>
-                <label for="debt-notes" class="form-label">ملاحظات (اختياري):</label>
-                <textarea id="debt-notes" class="form-textarea" rows="4" placeholder="مثال: تفاصيل السلعة، تاريخ الاستلام، موعد الدفع..."></textarea>
-            </div>
-            <div class="mt-6 flex justify-center gap-x-4">
-                <button type="submit" class="app-button app-button-primary">حفظ الدين</button>
-                <button type="button" onclick="closeModal('add-debt-modal')" class="app-button app-button-secondary">إلغاء</button>
-            </div>
-        </form>
-    </div>
-</div>
-// ▼▼▼ أضف هذه الدالة الجديدة بالكامل ▼▼▼
-async function displayDebts() {
-    const displayArea = document.getElementById('debts-list-area');
-    displayArea.innerHTML = ''; // تفريغ المنطقة قبل العرض
-
-    try {
-        await db.open();
-        const debts = await db.debts.orderBy('creationDate').reverse().toArray();
-
-        const listHeader = document.createElement('h4');
-        listHeader.className = 'section-title';
-        listHeader.textContent = `قائمة الديون (${debts.length} إدخالات)`;
-        displayArea.appendChild(listHeader);
-
-        if (debts.length === 0) {
-            displayArea.innerHTML += '<p class="text-center text-text-color-secondary mt-4">لا توجد ديون مسجلة حاليًا.</p>';
-            return;
-        }
-
-        const debtGrid = document.createElement('div');
-        debtGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
-
-        debts.forEach(debt => {
-            const itemDiv = document.createElement('div');
-            // تغيير شكل البطاقة إذا تم الدفع
-            itemDiv.className = debt.isPaid ? 'data-card p-4 flex flex-col justify-between opacity-70' : 'data-card p-4 flex flex-col justify-between';
-
-            let balanceHTML, actionButtonHTML;
-
-            if (debt.isPaid) {
-                // إذا تم الدفع
-                balanceHTML = `<p class="font-semibold my-2 text-base">الحالة: <span class="text-success-color font-bold">تم الدفع</span></p>`;
-                actionButtonHTML = `<button class="app-button app-button-secondary text-sm flex-grow cursor-not-allowed" disabled><i class="fas fa-check-circle mr-2"></i>تم التسديد</button>`;
-            } else {
-                // إذا لم يتم الدفع
-                balanceHTML = `<p class="font-semibold my-2 text-base">المبلغ المتبقي: <span class="text-error-color font-bold">${debt.balance.toFixed(2)} دج</span></p>`;
-                actionButtonHTML = `<button onclick="confirmPayDebt(${debt.id})" class="app-button bg-green-500 hover:bg-green-600 text-white text-sm flex-grow"><i class="fas fa-check mr-2"></i>تأكيد استلام المبلغ</button>`;
-            }
-
-            itemDiv.innerHTML = `
-                <div>
-                    <div class="flex justify-between items-start">
-                         <h5 class="text-lg font-bold text-primary-color"><span class="math-inline">\{debt\.customerName\}</h5\>
 </body>
 </html>

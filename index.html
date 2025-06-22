@@ -1237,6 +1237,70 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+/* ▼▼▼ (إصلاح شامل) الكود الكامل والصحيح لميزة "نفد المخزون" ▼▼▼ */
+
+/* 1. الإصلاح الأساسي: نجعل كل بطاقات الأحذية قابلة لاحتواء عناصر فوقها */
+.shoe-card {
+    position: relative; /* هذا هو السطر الأهم الذي كان ناقصاً */
+    background-color: var(--card-background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.3s ease;
+}
+
+/* 2. نضمن أن أزرار "تعديل" و "حذف" دائماً في الأعلى */
+.shoe-card-actions {
+    position: relative;
+    z-index: 10;
+}
+
+/* 3. تصميم الطبقة الزجاجية التي تظهر عند نفاذ المخزون */
+.out-of-stock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    /* المظهر الزجاجي للوضع الفاتح */
+    background-color: rgba(249, 250, 251, 0.7); 
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem; 
+    font-weight: 700;
+    border-radius: 12px;
+    z-index: 5; /* أقل من أزرار التحكم */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    /* نخفيها بشكل افتراضي */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+/* 4. نظهر الطبقة فقط عندما تكون البطاقة منتهية المخزون */
+.shoe-card.out-of-stock .out-of-stock-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* 5. تخصيص المظهر للوضع الليلي (Dark Mode) */
+body.dark-mode .out-of-stock-overlay {
+    background-color: rgba(30, 30, 30, 0.7);
+    color: #f5f5f5;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ▲▲▲ انتهى كود الإصلاح ▲▲▲ */
     </style>
 </head>
 <body> 
@@ -1325,12 +1389,15 @@ input:checked + .slider:before {
     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
 </div>
 
-<div id="other-services-view-content" class="main-view-section hidden">
-    <h3 class="view-title">خدمات أخرى</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
-        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
+
+    <div class="action-card" onclick="navigateToView('debts-view-content', null)">
+        <i class="fas fa-hand-holding-usd" style="background-color: #009688;"></i>
+        <p>قائمة الديون (كريدي)</p>
     </div>
+    <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
+</div>
     <div id="stock-alerts-section-in-stats" class="mt-6"> 
        <h4 class="section-title">تنبيهات نقص المخزون</h4>
        <div class="mb-4 bg-card-background-color p-4 rounded-lg shadow-sm"> 
@@ -1347,6 +1414,24 @@ input:checked + .slider:before {
        <div id="best-selling-shoes-list" class="text-sm bg-card-background-color p-4 rounded-lg shadow-sm"></div> 
     </div>
     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
+</div>
+
+<div id="debts-view-content" class="main-view-section hidden">
+    <h3 class="view-title">قائمة الديون (كريدي)</h3>
+
+    <div class="flex justify-center items-center gap-4 mb-6">
+        <button onclick="openAddDebtModal()" class="app-button app-button-primary"><i class="fas fa-plus mr-2"></i> إضافة دين جديد</button>
+        <button id="print-debts-list-button" class="app-button app-button-secondary"><i class="fas fa-print mr-2"></i> طباعة القائمة</button>
+    </div>
+
+    <div id="debts-list-area" class="mt-2">
+        </div>
+
+    <div class="back-button-container">
+        <button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)">
+            <i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى
+        </button>
+    </div>
 </div>
 
 <div id="delivery-services-view-content" class="main-view-section hidden">
@@ -1882,6 +1967,7 @@ import {
     pendingSales: 'id, shoeId, shoeImage, date, saleMonthYear, shippingConfirmed, shippingPrice', // أضفنا shippingPrice
     deliveryPrices: 'id, name',
     monthlyReports: 'monthYear, &monthYear',
+debts: '++id, customerName, balance, notes, creationDate, isPaid',
     suppliers: '++id, name, notes, imageUrl, addedDate'
         }).upgrade(async tx => {
             console.log("Upgrading database schema to version 6 to add notes for delivery prices.");
@@ -2859,33 +2945,31 @@ let currentPendingSaleFilter = 'all'; // فلتر المبيعات المعلق�
             }
         }
 // (استبدال) --- دالة عرض المخزون مع ترقيم الصفحات ---
+// (استبدال) --- دالة عرض المخزون مع الميزة الجديدة للمخزون النافد ---
 async function displayAllShoes(filterCategory = 'all', page = 1) {
     currentShoeFilter = filterCategory;
-    const shoesPerPage = 12; // يمكنك تغيير هذا الرقم (مثلاً 10 أو 20)
+    const shoesPerPage = 12; 
     const displayArea = document.getElementById('shoe-display-area');
 
     try {
         await db.open();
         let query;
 
-        // بناء الاستعلام حسب التصنيف
         if (filterCategory !== 'all') {
             query = db.shoes.where('category').equals(filterCategory);
         } else {
             query = db.shoes.toCollection();
         }
 
-        // الحصول على العدد الإجمالي للنتائج لحساب الصفحات
         const totalShoes = await query.count();
         const totalPages = Math.ceil(totalShoes / shoesPerPage);
 
-        // جلب بيانات الصفحة الحالية فقط باستخدام offset و limit
-        const shoesArray = await query.reverse() // لعرض الأحدث أولاً
+        const shoesArray = await query.reverse()
                                       .offset((page - 1) * shoesPerPage)
                                       .limit(shoesPerPage)
                                       .toArray();
 
-        displayArea.innerHTML = ''; // مسح المحتوى القديم
+        displayArea.innerHTML = ''; 
 
         if (shoesArray.length === 0) {
             displayArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">لا توجد أحذية تطابق هذا التصنيف "${filterCategory === 'all' ? 'الكل' : filterCategory}".</p>`;
@@ -2893,16 +2977,26 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
             const listContainer = document.createElement('div');
             listContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4';
             shoesArray.forEach(shoe => {
+                
+                const totalQuantity = shoe.sizes.reduce((acc, s) => acc + s.quantity, 0);
                 const card = document.createElement('div');
-                card.className = 'shoe-card';
+                card.className = totalQuantity === 0 ? 'shoe-card out-of-stock' : 'shoe-card';
+                
+                // أصبح النقر يعمل دائماً لتسهيل الوصول للتفاصيل أو التعديل
                 card.onclick = () => openShoeDetailsModal(shoe.id);
 
                 let imageHTML = `<div class="shoe-card-image-container"><span class="no-image-text">لا توجد صورة</span></div>`;
                 if (shoe.imageUrl) {
                     imageHTML = `<div class="shoe-card-image-container"><img src="${shoe.imageUrl}" alt="${shoe.name}"></div>`;
                 }
-
+                
+                const outOfStockHTML = totalQuantity === 0 
+                    ? `<div class="out-of-stock-overlay">نفد المخزون</div>` 
+                    : '';
+                
+                // ▼▼▼ تم تنظيف الكود هنا بإزالة style من الأزرار ▼▼▼
                 card.innerHTML = `
+                    ${outOfStockHTML} 
                     ${imageHTML}
                     <h4 title="${shoe.name}">${shoe.name}</h4>
                     <p class="text-xs text-gray-500">${shoe.category || 'غير مصنف'}</p>
@@ -2920,12 +3014,11 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
             });
             displayArea.appendChild(listContainer);
 
-            // ▼▼▼ بداية إضافة أزرار التنقل بين الصفحات ▼▼▼
+            // ... (بقية كود ترقيم الصفحات يبقى كما هو) ...
             if (totalPages > 1) {
                 const paginationContainer = document.createElement('div');
                 paginationContainer.className = 'flex justify-center items-center gap-3 mt-8';
 
-                // زر "السابق"
                 if (page > 1) {
                     const prevButton = document.createElement('button');
                     prevButton.className = 'app-button app-button-secondary';
@@ -2934,13 +3027,11 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
                     paginationContainer.appendChild(prevButton);
                 }
 
-                // عرض رقم الصفحة الحالية
                 const pageInfo = document.createElement('span');
                 pageInfo.className = 'font-semibold text-text-color-secondary';
                 pageInfo.textContent = `صفحة ${page} من ${totalPages}`;
                 paginationContainer.appendChild(pageInfo);
 
-                // زر "التالي"
                 if (page < totalPages) {
                     const nextButton = document.createElement('button');
                     nextButton.className = 'app-button app-button-secondary';
@@ -2950,16 +3041,7 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
                 }
                 displayArea.appendChild(paginationContainer);
             }
-            // ▲▲▲ نهاية إضافة أزرار التنقل بين الصفحات ▲▲▲
         }
-
-        // تحديث أزرار الفلترة
-        document.querySelectorAll('#shoe-filter-buttons .filter-button').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.category === filterCategory) {
-                btn.classList.add('active');
-            }
-        });
     } catch (error) {
         console.error("Error displaying shoes from Dexie:", error);
         showToast('خطأ في عرض الأحذية.', 'error');
@@ -5209,5 +5291,72 @@ function applyTheme(themeName) {
         </div>
     </div>
 </div> 
+<div id="add-debt-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="modal-title" id="add-edit-debt-modal-title">إضافة دين جديد</h3>
+        <form id="add-debt-form">
+            <input type="hidden" id="editing-debt-id">
+            <div>
+                <label for="debt-customer-name" class="form-label">اسم الشخص:</label>
+                <input type="text" id="debt-customer-name" class="form-input" required>
+            </div>
+            <div>
+                <label for="debt-balance" class="form-label">المبلغ المطلوب (دج):</label>
+                <input type="number" id="debt-balance" class="form-input" required placeholder="أدخل المبلغ المتبقي على الشخص">
+            </div>
+            <div>
+                <label for="debt-notes" class="form-label">ملاحظات (اختياري):</label>
+                <textarea id="debt-notes" class="form-textarea" rows="4" placeholder="مثال: تفاصيل السلعة، تاريخ الاستلام، موعد الدفع..."></textarea>
+            </div>
+            <div class="mt-6 flex justify-center gap-x-4">
+                <button type="submit" class="app-button app-button-primary">حفظ الدين</button>
+                <button type="button" onclick="closeModal('add-debt-modal')" class="app-button app-button-secondary">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+// ▼▼▼ أضف هذه الدالة الجديدة بالكامل ▼▼▼
+async function displayDebts() {
+    const displayArea = document.getElementById('debts-list-area');
+    displayArea.innerHTML = ''; // تفريغ المنطقة قبل العرض
+
+    try {
+        await db.open();
+        const debts = await db.debts.orderBy('creationDate').reverse().toArray();
+
+        const listHeader = document.createElement('h4');
+        listHeader.className = 'section-title';
+        listHeader.textContent = `قائمة الديون (${debts.length} إدخالات)`;
+        displayArea.appendChild(listHeader);
+
+        if (debts.length === 0) {
+            displayArea.innerHTML += '<p class="text-center text-text-color-secondary mt-4">لا توجد ديون مسجلة حاليًا.</p>';
+            return;
+        }
+
+        const debtGrid = document.createElement('div');
+        debtGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+        debts.forEach(debt => {
+            const itemDiv = document.createElement('div');
+            // تغيير شكل البطاقة إذا تم الدفع
+            itemDiv.className = debt.isPaid ? 'data-card p-4 flex flex-col justify-between opacity-70' : 'data-card p-4 flex flex-col justify-between';
+
+            let balanceHTML, actionButtonHTML;
+
+            if (debt.isPaid) {
+                // إذا تم الدفع
+                balanceHTML = `<p class="font-semibold my-2 text-base">الحالة: <span class="text-success-color font-bold">تم الدفع</span></p>`;
+                actionButtonHTML = `<button class="app-button app-button-secondary text-sm flex-grow cursor-not-allowed" disabled><i class="fas fa-check-circle mr-2"></i>تم التسديد</button>`;
+            } else {
+                // إذا لم يتم الدفع
+                balanceHTML = `<p class="font-semibold my-2 text-base">المبلغ المتبقي: <span class="text-error-color font-bold">${debt.balance.toFixed(2)} دج</span></p>`;
+                actionButtonHTML = `<button onclick="confirmPayDebt(${debt.id})" class="app-button bg-green-500 hover:bg-green-600 text-white text-sm flex-grow"><i class="fas fa-check mr-2"></i>تأكيد استلام المبلغ</button>`;
+            }
+
+            itemDiv.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-start">
+                         <h5 class="text-lg font-bold text-primary-color"><span class="math-inline">\{debt\.customerName\}</h5\>
 </body>
 </html>

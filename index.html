@@ -337,6 +337,7 @@ body.theme-green {
         .action-card .icon-bg-other-services { background-color: var(--other-services-icon-bg-color); } 
         .action-card .icon-bg-delivery { background-color: var(--delivery-icon-bg-color); } 
         .action-card .icon-bg-suppliers { background-color: var(--suppliers-icon-bg-color); }
+        .action-card .icon-bg-debts { background-color: #E91E63; }
         .action-card .icon-bg-ai { background-color: #3F51B5; } 
         .action-card .icon-bg-returns { background-color: #795548; } 
         .action-card .icon-bg-auth { background-color: #9C27B0; }
@@ -1132,67 +1133,10 @@ body.theme-green {
         }
 
         /* (إضافة جديدة) أنماط خاصة بالطباعة */
-@media print {
-    body * {
-        visibility: hidden; /* إخفاء كل شيء في الصفحة */
-    }
-    #detailed-monthly-report-section, #detailed-monthly-report-section * {
-        visibility: visible; /* إظهار قسم التقرير وكل ما بداخله فقط */
-    }
-    #detailed-monthly-report-section {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 20px;
-    }
-    .app-button {
-        display: none; /* إخفاء زر الطباعة نفسه عند الطباعة */
-    }
-    body.dark-mode { /* فرض الوضع الفاتح عند الطباعة */
-        --text-color-primary: #000000;
-        --card-background-color: #FFFFFF;
-        --border-color: #dddddd;
-        background-color: #FFFFFF;
-    }
-    table, th, td {
-        color: #000000 !important;
-    }
-}
-/* (إضافة جديدة) أنماط خاصة بالطباعة */
-@media print {
-    body * {
-        visibility: hidden; /* إخفاء كل شيء في الصفحة */
-    }
-    #detailed-monthly-report-section, #detailed-monthly-report-section * {
-        visibility: visible; /* إظهار قسم التقرير وكل ما بداخله فقط */
-    }
-    #detailed-monthly-report-section {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 20px;
-    }
-    .app-button {
-        display: none; /* إخفاء زر الطباعة نفسه عند الطباعة */
-    }
-    body.dark-mode { /* فرض الوضع الفاتح عند الطباعة */
-        --text-color-primary: #000000;
-        --card-background-color: #FFFFFF;
-        --border-color: #dddddd;
-        background-color: #FFFFFF;
-    }
-    table, th, td {
-        color: #000000 !important;
-    }
 
-    /* ▼▼▼ أضف هذا الكود الجديد هنا ▼▼▼ */
-    #detailed-monthly-sales-container {
-        display: block !important;
-    }
+/* (إضافة جديدة) أنماط خاصة بالطباعة */
     /* ▲▲▲ انتهت الإضافة ▲▲▲ */
-}
+
 /* ▼▼▼ أضف هذا الكود في نهاية قسم <style> ▼▼▼ */
 .switch {
   position: relative;
@@ -1301,6 +1245,116 @@ body.dark-mode .out-of-stock-overlay {
 }
 
 /* ▲▲▲ انتهى كود الإصلاح ▲▲▲ */
+/* تصميم بطاقة الديون الجديد */
+.debt-card {
+    background-color: var(--card-background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+}
+.debt-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(0,0,0,0.1);
+}
+.debt-card-image-container {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 3px solid var(--primary-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.debt-card-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.debt-card-no-image {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-dark);
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+.debt-card h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color-primary);
+}
+.debt-card .debt-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--error-color);
+    margin: 4px 0;
+}
+.debt-card .debt-notes {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    margin-bottom: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.debt-card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}@media print {
+    /* القاعدة الأساسية: إخفاء كل شيء أولاً */
+    body * {
+        visibility: hidden;
+    }
+
+    /* إظهار قسم تقرير الإحصائيات وكل ما بداخله، إذا كان هو الهدف */
+    #detailed-monthly-report-section, #detailed-monthly-report-section * {
+        visibility: visible;
+    }
+    #detailed-monthly-report-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    /* إظهار قسم تقرير الديون وكل ما بداخله، إذا كان هو الهدف */
+    #detailed-debts-report-section, #detailed-debts-report-section * {
+        visibility: visible;
+    }
+    #detailed-debts-report-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    /* إخفاء الأزرار التي لا نريدها في الطباعة */
+    .app-button, .back-button {
+        display: none !important;
+    }
+
+    /* فرض الوضع الفاتح لضمان الوضوح */
+    body {
+        background-color: #FFFFFF !important;
+    }
+    table, th, td, p, h2, h5, strong, span {
+        color: #000000 !important;
+    }
+}
+
     </style>
 </head>
 <body> 
@@ -1382,8 +1436,7 @@ body.dark-mode .out-of-stock-overlay {
     <div id="detailed-monthly-report-section" class="mt-8">
         <h4 class="section-title text-right">طباعة</h4>
         <div class="text-right mb-4">
-            <button onclick="window.print()" class="app-button app-button-secondary px-4 py-2 text-sm"><i class="fas fa-print mr-2"></i> طباعة التقرير</button>
-        </div>
+<button onclick="printStatsReport()" class="app-button app-button-secondary px-4 py-2 text-sm"><i class="fas fa-print mr-2"></i> طباعة التقرير</button>        </div>
         <div id="detailed-monthly-sales-container" class="hidden bg-card-background-color p-4 rounded-lg shadow-md overflow-x-auto"></div>
     </div>
     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('home-view-content', document.querySelector('.nav-item[data-target=\'home\']'))"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</button></div>
@@ -1391,10 +1444,11 @@ body.dark-mode .out-of-stock-overlay {
 
 <div id="other-services-view-content" class="main-view-section hidden">
     <h3 class="view-title">خدمات أخرى</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
-        <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
-    </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="action-card" onclick="navigateToView('delivery-services-view-content', null)"><i class="fas fa-shipping-fast icon-bg-delivery"></i><p>خدمات توصيل</p></div>
+    <div class="action-card" onclick="navigateToView('suppliers-view-content', null)"><i class="fas fa-users icon-bg-suppliers"></i><p>قائمة الموردين</p></div>
+    <div class="action-card" onclick="navigateToView('debts-list-view-content', null)"><i class="fas fa-file-invoice-dollar icon-bg-debts"></i><p>قائمة الديون</p></div>
+</div>
     <div id="stock-alerts-section-in-stats" class="mt-6"> 
        <h4 class="section-title">تنبيهات نقص المخزون</h4>
        <div class="mb-4 bg-card-background-color p-4 rounded-lg shadow-sm"> 
@@ -1424,6 +1478,30 @@ body.dark-mode .out-of-stock-overlay {
     <div class="flex justify-center items-center mb-6"><button onclick="openAddSupplierModal()" class="app-button app-button-primary"><i class="fas fa-plus mr-2"></i> إضافة مورد جديد</button></div>
     <div id="suppliers-list-area" class="mt-2"></div>
     <div class="back-button-container"><button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)"><i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى</button></div>
+</div>
+<div id="debts-list-view-content" class="main-view-section hidden">
+    <div class="flex justify-center items-center mb-6 gap-4">
+        <button onclick="openAddDebtModal()" class="app-button app-button-primary">
+            <i class="fas fa-plus mr-2"></i> إضافة دين جديد
+        </button>
+        <button onclick="printDebtsReport()" class="app-button app-button-secondary print-debts-button">
+            <i class="fas fa-print mr-2"></i> طباعة التقرير
+        </button>
+    </div>
+    
+    <div id="debts-list-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        </div>
+
+    <div id="detailed-debts-report-section" class="hidden">
+        <h2 style="text-align: center; font-size: 24px; font-family: 'Cairo', sans-serif; margin-bottom: 20px;">تقرير الديون</h2>
+        <div id="detailed-debts-container"></div>
+    </div>
+
+    <div class="back-button-container">
+        <button class="back-button app-button app-button-secondary" onclick="navigateToView('other-services-view-content', null)">
+            <i class="fas fa-arrow-right"></i> رجوع لخدمات أخرى
+        </button>
+    </div>
 </div>
 
 <div id="ai-sales-advisor-view-content" class="main-view-section hidden">
@@ -1602,10 +1680,10 @@ body.dark-mode .out-of-stock-overlay {
         </div>
     </div>
     
-    <div id="toast-notification" class="toast-notification">
-        <span id="toast-icon"></span>
-        <span id="toast-message"></span>
-    </div>
+<div id="toast-notification" class="toast-notification">
+    <span id="toast-icon"></span>
+    <span id="toast-message"></span>
+    <div class="toast-buttons-container"></div> </div>
 
     <div id="add-shoe-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1682,6 +1760,7 @@ body.dark-mode .out-of-stock-overlay {
                 <div>
                     <label for="sell-customer-name" class="form-label">اسم المشتري:</label>
                     <input type="text" id="sell-customer-name" class="form-input">
+                    <input type="hidden" id="editing-pending-sale-id">
                 </div>
                 <div>
                     <label for="sell-customer-address" class="form-label">عنوان و ولاية :</label>
@@ -1726,10 +1805,10 @@ body.dark-mode .out-of-stock-overlay {
                     <label for="sell-notes" class="form-label">ملاحظات (اختياري):</label>
                     <textarea id="sell-notes" class="form-textarea" rows="2"></textarea>
                 </div>
-                <div class="mt-6 flex justify-center gap-x-4">
-                    <button type="submit" class="app-button app-button-primary">متابعة للتأكيد</button>
-                    <button type="button" onclick="closeModal('sell-shoe-modal')" class="app-button app-button-secondary">إلغاء</button>
-                </div>
+<div class="mt-6 flex justify-center gap-x-4">
+    <button type="submit" id="sell-shoe-submit-button" class="app-button app-button-primary">متابعة للتأكيد</button>
+    <button type="button" onclick="closeModal('sell-shoe-modal')" class="app-button app-button-secondary">إلغاء</button>
+</div>
             </form>
         </div>
     </div>
@@ -1939,14 +2018,15 @@ import {
         // Dexie DB instance
 // استبدل كل تعريفات الـ versions القديمة بهذا التعريف الجديد
         const db = new Dexie("ShoesManagerDB_v6"); // قمنا بتغيير الاسم لضمان التحديث
-    db.version(7).stores({
+db.version(7).stores({
     shoes: 'id, name, addedDate, category, *sizes.size',
-    sales: '++id, shoeId, date, total, saleMonthYear, shippingPrice', // أضفنا shippingPrice
+    sales: '++id, shoeId, date, total, saleMonthYear, shippingPrice',
     returns: '++id, phone, date, returnMonthYear',
-    pendingSales: 'id, shoeId, shoeImage, date, saleMonthYear, shippingConfirmed, shippingPrice', // أضفنا shippingPrice
+    pendingSales: 'id, shoeId, shoeImage, date, saleMonthYear, shippingConfirmed, shippingPrice',
     deliveryPrices: 'id, name',
     monthlyReports: 'monthYear, &monthYear',
-    suppliers: '++id, name, notes, imageUrl, addedDate'
+    suppliers: '++id, name, notes, imageUrl, addedDate',
+    debts: '++id, lastName, firstName, addedDate' // <-- هذه هي الإضافة الجديدة
         }).upgrade(async tx => {
             console.log("Upgrading database schema to version 6 to add notes for delivery prices.");
             
@@ -2673,24 +2753,59 @@ let currentPendingSaleFilter = 'all'; // فلتر المبيعات المعلق�
             }
         }
         
-        window.showToast = function(message, type = 'success') {
-            // ... (same as original)
-            const toast = document.getElementById('toast-notification');
-            const toastMessage = document.getElementById('toast-message');
-            const toastIconEl = document.getElementById('toast-icon'); 
-            toastMessage.textContent = message;
-            toast.className = 'toast-notification'; 
-            toast.classList.add(type); 
-            if (type === 'success') {
-                toastIconEl.innerHTML = '<i class="fas fa-check-circle"></i>';
-            } else {
-                toastIconEl.innerHTML = '<i class="fas fa-times-circle"></i>';
-            }
-            toast.classList.add('visible');
-            setTimeout(() => {
-                toast.classList.remove('visible');
-            }, 3000); 
-        }
+window.showToast = function(message, type = 'success', duration = 3000, buttons = []) {
+    const toast = document.getElementById('toast-notification');
+    const toastMessage = document.getElementById('toast-message');
+    const toastIconEl = document.getElementById('toast-icon');
+    const toastButtonsContainer = toast.querySelector('.toast-buttons-container'); // نستخدم هذا بدلاً من إنشاء جديد
+
+    // تنظيف محتوى الأزرار القديم
+    if (toastButtonsContainer) {
+        toastButtonsContainer.innerHTML = '';
+    }
+
+    toastMessage.textContent = message;
+    toast.className = 'toast-notification'; // لإزالة الفئات السابقة
+    toast.classList.add(type);
+
+    // تعيين الأيقونة بناءً على النوع
+    if (type === 'success') {
+        toastIconEl.innerHTML = '<i class="fas fa-check-circle"></i>';
+    } else if (type === 'error') {
+        toastIconEl.innerHTML = '<i class="fas fa-times-circle"></i>';
+    } else if (type === 'info') {
+        toastIconEl.innerHTML = '<i class="fas fa-info-circle"></i>';
+    } else if (type === 'warning') {
+        toastIconEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+    }
+
+    // إضافة الأزرار إذا تم توفيرها
+    if (buttons.length > 0 && toastButtonsContainer) {
+        toastButtonsContainer.className = 'toast-buttons-container flex gap-2 mt-2'; // إعادة تعيين الفئات لضمان وجودها
+        buttons.forEach(btnInfo => {
+            const button = document.createElement('button');
+            button.textContent = btnInfo.text;
+            button.className = `app-button ${btnInfo.className || 'app-button-secondary'} px-3 py-1 text-xs rounded-lg`;
+            button.style.flexShrink = 0; 
+            button.style.whiteSpace = 'nowrap'; 
+
+            button.onclick = () => {
+                if (btnInfo.onClick) {
+                    btnInfo.onClick();
+                }
+                toast.classList.remove('visible'); // إخفاء التوست عند النقر على أي زر
+            };
+            toastButtonsContainer.appendChild(button);
+        });
+    }
+
+    toast.classList.add('visible');
+
+    // إخفاء التوست بعد المدة المحددة (أطول قليلاً مع الأزرار)
+    setTimeout(() => {
+        toast.classList.remove('visible');
+    }, buttons.length > 0 ? Math.max(duration, 5000) : duration); // 5 ثوانٍ على الأقل للأزرار
+}
 
         // --- Shoe Management (Dexie) ---
         window.openAddShoeModal = async function(shoeIdToEdit = null) { /* ... same as original ... */ 
@@ -3076,7 +3191,7 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
             document.getElementById('confirm-action-btn').onclick = async () => {
                 try {
                     await db.open();
-                    await db.shoes.delete(shoeId);
+                    await db.shoes.delete(shoeId)
                     if (!document.getElementById('inventory-view-content').classList.contains('hidden')) {
                         displayAllShoes(currentShoeFilter); 
                     }
@@ -3089,108 +3204,205 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
                 }
             };
         }
+        
 
         // --- Sales Management (Dexie) ---
-        window.openSellShoeModal = async function() { /* ... same as original ... */ 
-            const shoeSelect = document.getElementById('sell-shoe-select');
-            const sizeSelect = document.getElementById('sell-shoe-size-select');
-            const availableQuantityText = document.getElementById('sell-available-quantity');
+let originalPendingSaleData = null;
+let lastCustomerData = null; // جديد: لحفظ بيانات آخر عميل تم البيع له
+window.openSellShoeModal = async function(pendingSaleIdToEdit = null) {
+    document.getElementById('sell-shoe-form').reset(); // يمسح كل الحقول
+    const shoeSelect = document.getElementById('sell-shoe-select');
+    const sizeSelect = document.getElementById('sell-shoe-size-select');
+    const availableQuantityText = document.getElementById('sell-available-quantity');
 
-            document.getElementById('sell-shoe-form').reset(); 
-            shoeSelect.innerHTML = '<option value="">-- اختر حذاء --</option>'; 
-            sizeSelect.innerHTML = '<option value="">-- اختر مقاس --</option>';
-            sizeSelect.disabled = true;
-            availableQuantityText.textContent = 'الكمية المتوفرة: -';
-            document.getElementById('sell-quantity').value = 1;
-            document.getElementById('sell-date').valueAsDate = new Date();
+    // إعادة تهيئة القوائم المنسدلة للبدء من جديد
+    shoeSelect.innerHTML = '<option value="">-- اختر حذاء --</option>';
+    sizeSelect.innerHTML = '<option value="">-- اختر مقاس --</option>';
+    sizeSelect.disabled = true; // تعطيل اختيار المقاس حتى يتم اختيار حذاء
+    availableQuantityText.textContent = 'الكمية المتوفرة: -';
+    document.getElementById('sell-quantity').value = 1; // تعيين الكمية الافتراضية 1
+    document.getElementById('sell-date').valueAsDate = new Date(); // تاريخ اليوم افتراضياً
 
-            try {
-                await db.open();
+    // إخفاء زر "إضافة منتج آخر" عند فتح النموذج لأي سبب
+  
+    // إظهار زر "متابعة للتأكيد" الافتراضي
+
+    let editingPendingSaleIdInput = document.getElementById('editing-pending-sale-id');
+    if (!editingPendingSaleIdInput) {
+        editingPendingSaleIdInput = document.createElement('input');
+        editingPendingSaleIdInput.type = 'hidden';
+        editingPendingSaleIdInput.id = 'editing-pending-sale-id';
+        document.getElementById('sell-shoe-form').appendChild(editingPendingSaleIdInput);
+    }
+
+    const modalTitle = document.getElementById('sell-shoe-modal').querySelector('.modal-title');
+    const submitButton = document.getElementById('sell-shoe-submit-button'); 
+
+    originalPendingSaleData = null; // إعادة تعيين البيانات الأصلية لأي عملية تعديل
+
+    if (pendingSaleIdToEdit) {
+        // وضع التعديل (إذا تم تمرير معرف لعملية بيع معلقة)
+        modalTitle.textContent = 'تعديل عملية بيع معلقة';
+        submitButton.textContent = 'حفظ التعديلات';
+        editingPendingSaleIdInput.value = pendingSaleIdToEdit;
+
+        try {
+            await db.open();
+            const pendingSale = await db.pendingSales.get(pendingSaleIdToEdit);
+            if (pendingSale) {
+                originalPendingSaleData = { ...pendingSale }; // تخزين البيانات الأصلية للتعديل
+                document.getElementById('sell-customer-name').value = pendingSale.customerName || '';
+                document.getElementById('sell-customer-address').value = pendingSale.customerAddress || '';
+                document.getElementById('sell-customer-phone').value = pendingSale.customerPhone || '';
+
+                document.getElementById('sell-quantity').value = pendingSale.quantitySold;
+                document.getElementById('sell-price').value = pendingSale.sellPrice;
+                document.getElementById('sell-shipping-price').value = pendingSale.shippingPrice || '';
+                document.getElementById('sell-date').value = pendingSale.sellDate;
+                document.getElementById('sell-notes').value = pendingSale.notes || '';
+
+                // تحميل الأحذية ثم تحديد الحذاء والمقاس المطلوب
                 const shoes = await db.shoes.toArray();
                 shoes.forEach(shoe => {
-                    if (shoe.sizes && shoe.sizes.some(s => s.quantity > 0)) { 
+                    // السماح بإظهار الحذاء الأصلي حتى لو نفد مخزونه (للتعديل)
+                    if (shoe.sizes && shoe.sizes.some(s => s.quantity > 0) || (shoe.id === pendingSale.shoeId)) { 
                         const option = document.createElement('option');
                         option.value = shoe.id;
                         option.textContent = shoe.name;
                         shoeSelect.appendChild(option);
                     }
                 });
-            } catch (error) {
-                console.error("Error populating sell shoe modal:", error);
-                showToast('خطأ في تحميل الأحذية.', 'error');
+                shoeSelect.value = pendingSale.shoeId;
+                // استدعاء دالة تحديث المقاسات لتعبئة المقاسات وتحديد المقاس القديم
+                await updateSizesForSelectedShoe(pendingSale.shoeId, pendingSale.size, pendingSaleIdToEdit);
+
+            } else {
+                showToast('لم يتم العثور على البيع المعلق للتعديل.', 'error');
+                // العودة لوضع "إضافة بيع جديد" إذا لم يتم العثور
+                modalTitle.textContent = 'تسجيل عملية بيع';
+                submitButton.textContent = 'متابعة للتأكيد';
+                editingPendingSaleIdInput.value = '';
             }
+        } catch (error) {
+            console.error("خطأ في جلب بيانات البيع المعلق للتعديل:", error);
+            showToast('خطأ في جلب بيانات البيع المعلق للتعديل.', 'error');
+        }
+    } else {
+        // وضع إضافة جديد
+        modalTitle.textContent = 'تسجيل عملية بيع';
+        submitButton.textContent = 'متابعة للتأكيد';
+        editingPendingSaleIdInput.value = '';
+
+        // إذا كان هناك بيانات لعميل سابق، قم بتعبئتها تلقائيًا
+        if (lastCustomerData) {
+            document.getElementById('sell-customer-name').value = lastCustomerData.name || '';
+            document.getElementById('sell-customer-address').value = lastCustomerData.address || '';
+            document.getElementById('sell-customer-phone').value = lastCustomerData.phone || '';
+        }
+
+        // تحميل الأحذية المتوفرة فقط عند إضافة بيع جديد
+        try {
+            await db.open();
+            const shoes = await db.shoes.toArray();
+            shoes.forEach(shoe => {
+                // فقط الأحذية التي لديها كمية متوفرة
+                if (shoe.sizes && shoe.sizes.some(s => s.quantity > 0)) { 
+                    const option = document.createElement('option');
+                    option.value = shoe.id;
+                    option.textContent = shoe.name;
+                    shoeSelect.appendChild(option);
+                }
+            });
+        } catch (error) {
+            console.error("Error populating sell shoe modal:", error);
+            showToast('خطأ في تحميل الأحذية.', 'error');
+        }
+    }
 
 // (استبدل الدالة onchange القديمة بهذه النسخة المعدلة)
-shoeSelect.onchange = async function() {
-    const selectedShoeId = this.value;
+    shoeSelect.onchange = async function() {
+        const selectedShoeId = this.value;
+        if (!selectedShoeId) {
+            document.getElementById('shoe-preview-container').classList.add('hidden');
+            sizeSelect.innerHTML = '<option value="">-- اختر مقاس --</option>';
+            sizeSelect.disabled = true;
+            availableQuantityText.textContent = 'الكمية المتوفرة: -';
+            return;
+        }
+    // الآن، نقوم بتمرير pendingSaleIdToEdit (الذي هو Null في حالة الإضافة الجديدة)
+    // إلى الدالة العامة updateSizesForSelectedShoe
+        const editingPendingSaleId = document.getElementById('editing-pending-sale-id').value;
+        await updateSizesForSelectedShoe(selectedShoeId, null, editingPendingSaleId);
+    }
 
-    // ▼▼▼ بداية الإضافة الجديدة ▼▼▼
-    const previewContainer = document.getElementById('shoe-preview-container');
-    const previewImage = document.getElementById('shoe-preview-image');
-    // ▲▲▲ نهاية الإضافة الجديدة ▲▲▲
+// دالة مساعدة لتحديث قائمة المقاسات وتحديد المقاس المطلوب
+// تم نقلها إلى النطاق العام لتكون متاحة للجميع
+async function updateSizesForSelectedShoe(shoeId, selectedSize = null, pendingSaleIdToEdit = null) {
+    const shoeSelect = document.getElementById('sell-shoe-select'); // سنقوم بجلبها هنا مرة أخرى
+    const sizeSelect = document.getElementById('sell-shoe-size-select');
+    const availableQuantityText = document.getElementById('sell-available-quantity');
 
     sizeSelect.innerHTML = '<option value="">-- اختر مقاس --</option>';
     sizeSelect.disabled = true;
     availableQuantityText.textContent = 'الكمية المتوفرة: -';
-    document.getElementById('sell-quantity').value = 1;
+    document.getElementById('sell-quantity').value = 1; // إعادة تعيين الكمية إلى 1
 
-    // ▼▼▼ تعديل بسيط هنا لإخفاء الصورة عند عدم الاختيار ▼▼▼
-    if (!selectedShoeId) {
-        previewContainer.classList.add('hidden'); // إخفاء الحاوية
-        return;
+    const selectedShoe = await db.shoes.get(shoeId);
+    const previewContainer = document.getElementById('shoe-preview-container');
+    const previewImage = document.getElementById('shoe-preview-image');
+
+    if (selectedShoe && selectedShoe.imageUrl) {
+        previewImage.src = selectedShoe.imageUrl;
+        previewContainer.classList.remove('hidden');
+    } else {
+        previewContainer.classList.add('hidden');
     }
-    // ▲▲▲ نهاية التعديل ▲▲▲
 
-    try {
-        await db.open();
-        const selectedShoe = await db.shoes.get(selectedShoeId);
-
-        // ▼▼▼ بداية الإضافة الجديدة لعرض الصورة ▼▼▼
-        if (selectedShoe && selectedShoe.imageUrl) {
-            previewImage.src = selectedShoe.imageUrl; // وضع رابط الصورة
-            previewContainer.classList.remove('hidden'); // إظهار الحاوية
-        } else {
-            previewContainer.classList.add('hidden'); // إخفاء الحاوية إذا لم توجد صورة
-        }
-        // ▲▲▲ نهاية الإضافة الجديدة ▲▲▲
-
-        if (selectedShoe && selectedShoe.sizes) {
-            selectedShoe.sizes.forEach(sizeInfo => {
-                if (sizeInfo.quantity > 0) {
-                    const sizeOption = document.createElement('option');
-                    sizeOption.value = sizeInfo.size;
-                    sizeOption.textContent = `${sizeInfo.size} (متوفر: ${sizeInfo.quantity})`;
-                    sizeOption.dataset.available = sizeInfo.quantity; 
-                    sizeSelect.appendChild(sizeOption);
-                }
-            });
-            sizeSelect.disabled = false;
-            if (sizeSelect.options.length === 2) { 
-                sizeSelect.selectedIndex = 1;
-                sizeSelect.dispatchEvent(new Event('change'));
+    if (selectedShoe && selectedShoe.sizes) {
+        selectedShoe.sizes.forEach(sizeInfo => {
+            // استخدام pendingSaleIdToEdit هنا
+            if (sizeInfo.quantity > 0 || (pendingSaleIdToEdit && sizeInfo.size === selectedSize)) { 
+                const sizeOption = document.createElement('option');
+                sizeOption.value = sizeInfo.size;
+                sizeOption.textContent = `${sizeInfo.size} (متوفر: ${sizeInfo.quantity})`;
+                sizeOption.dataset.available = sizeInfo.quantity;
+                sizeSelect.appendChild(sizeOption);
             }
+        });
+        sizeSelect.disabled = false;
+        
+        if (selectedSize) {
+            sizeSelect.value = selectedSize;
+            const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+            if (selectedOption && selectedOption.dataset.available) {
+                availableQuantityText.textContent = `الكمية المتوفرة: ${selectedOption.dataset.available}`;
+                document.getElementById('sell-quantity').max = selectedOption.dataset.available;
+            }
+        } else if (sizeSelect.options.length === 2) {
+            sizeSelect.selectedIndex = 1;
+            sizeSelect.dispatchEvent(new Event('change'));
         }
-    } catch (error) {
-        console.error("Error fetching shoe sizes for sale:", error);
-        showToast('خطأ في تحميل مقاسات الحذاء.', 'error');
     }
-};
+}
             
-            sizeSelect.onchange = function() {
-                const selectedSizeOption = this.options[this.selectedIndex];
-                if (selectedSizeOption && selectedSizeOption.dataset.available) {
-                    availableQuantityText.textContent = `الكمية المتوفرة: ${selectedSizeOption.dataset.available}`;
-                    document.getElementById('sell-quantity').max = selectedSizeOption.dataset.available;
-                    document.getElementById('sell-quantity').value = 1; 
-                } else {
-                    availableQuantityText.textContent = 'الكمية المتوفرة: -';
-                    document.getElementById('sell-quantity').max = '';
-                }
-            };
-            showModal('sell-shoe-modal');
+    sizeSelect.onchange = function() {
+        const selectedSizeOption = this.options[this.selectedIndex];
+        if (selectedSizeOption && selectedSizeOption.dataset.available) {
+            availableQuantityText.textContent = `الكمية المتوفرة: ${selectedSizeOption.dataset.available}`;
+            document.getElementById('sell-quantity').max = selectedSizeOption.dataset.available;
+            document.getElementById('sell-quantity').value = 1; // إعادة تعيين الكمية لـ 1 عند تغيير المقاس
+        } else {
+            availableQuantityText.textContent = 'الكمية المتوفرة: -';
+            document.getElementById('sell-quantity').max = '';
         }
+    };
+
+    showModal('sell-shoe-modal'); // عرض المودال في النهاية
+}
 document.getElementById('sell-shoe-form').addEventListener('submit', async function(event) {
     event.preventDefault();
+
+    const editingPendingSaleId = document.getElementById('editing-pending-sale-id').value;
     const customerName = document.getElementById('sell-customer-name').value.trim();
     const customerAddress = document.getElementById('sell-customer-address').value.trim();
     const customerPhone = document.getElementById('sell-customer-phone').value.trim();
@@ -3201,59 +3413,143 @@ document.getElementById('sell-shoe-form').addEventListener('submit', async funct
     const sellPrice = parseFloat(document.getElementById('sell-price').value);
     const sellDate = document.getElementById('sell-date').value;
     const notes = document.getElementById('sell-notes').value;
-    
-    // ▼▼▼ بداية التعديل: قراءة سعر الشحن ▼▼▼
     const shippingPrice = parseFloat(document.getElementById('sell-shipping-price').value) || 0;
-    // ▲▲▲ نهاية التعديل ▲▲▲
 
+    // التحقق من صحة المدخلات
     if (!shoeId || !size || isNaN(quantitySold) || quantitySold <= 0 || isNaN(sellPrice) || sellPrice < 0 || !sellDate) {
         showToast('يرجى ملء جميع حقول البيع المطلوبة بشكل صحيح.', 'error');
         return;
     }
     if (customerPhone && !/^\d{8,15}$/.test(customerPhone)) {
-         showToast('يرجى إدخال رقم هاتف صحيح للمشتري أو تركه فارغًا.', 'error');
+        showToast('يرجى إدخال رقم هاتف صحيح للمشتري أو تركه فارغًا.', 'error');
         return;
     }
-    
-    const saleMonthYear = new Date(sellDate).toISOString().slice(0, 7); 
+
+    const saleMonthYear = new Date(sellDate).toISOString().slice(0, 7);
 
     try {
         await db.open();
-        const shoeToSell = await db.shoes.get(shoeId);
-        if (!shoeToSell) {
-            showToast('لم يتم العثور على الحذاء المحدد.', 'error'); return;
+
+        if (editingPendingSaleId && originalPendingSaleData) {
+            // منطق التعديل (لم يتغير كثيراً في هذا السياق)
+            const oldShoeId = originalPendingSaleData.shoeId;
+            const oldSize = originalPendingSaleData.size;
+            const oldQuantitySold = originalPendingSaleData.quantitySold;
+
+            let currentShoeInDb = await db.shoes.get(shoeId);
+            if (!currentShoeInDb) { showToast('الحذاء المحدد غير موجود في المخزون.', 'error'); return; }
+
+            if (oldShoeId !== shoeId || oldSize !== size) {
+                const oldShoeInDb = await db.shoes.get(oldShoeId);
+                if (oldShoeInDb) {
+                    const oldSizeIndex = oldShoeInDb.sizes.findIndex(s => s.size === oldSize);
+                    if (oldSizeIndex > -1) {
+                        oldShoeInDb.sizes[oldSizeIndex].quantity += oldQuantitySold;
+                        await db.shoes.put(oldShoeInDb);
+                    }
+                }
+                const newSizeIndex = currentShoeInDb.sizes.findIndex(s => s.size === size);
+                if (newSizeIndex === -1 || currentShoeInDb.sizes[newSizeIndex].quantity < quantitySold) {
+                     showToast(`الكمية المطلوبة (${quantitySold}) لمقاس ${size} غير متوفرة في المخزون الحالي.`, 'error');
+                     return;
+                }
+                currentShoeInDb.sizes[newSizeIndex].quantity -= quantitySold;
+                await db.shoes.put(currentShoeInDb);
+
+            } else {
+                const quantityDifference = quantitySold - oldQuantitySold;
+                const sizeIndex = currentShoeInDb.sizes.findIndex(s => s.size === size);
+                if (sizeIndex === -1) { showToast('المقاس غير موجود في بيانات الحذاء.', 'error'); return; }
+
+                if (quantityDifference > 0 && currentShoeInDb.sizes[sizeIndex].quantity < quantityDifference) {
+                    showToast(`لا توجد كمية كافية في المخزون لخصم ${quantityDifference} إضافية من مقاس ${size}.`, 'error');
+                    return;
+                }
+                currentShoeInDb.sizes[sizeIndex].quantity -= quantityDifference;
+                await db.shoes.put(currentShoeInDb);
+            }
+
+            await db.pendingSales.update(editingPendingSaleId, {
+                customerName, customerAddress, customerPhone,
+                shoeId, shoeName, shoeImage: currentShoeInDb.imageUrl,
+                size, quantitySold, sellPrice, sellDate, notes,
+                shippingPrice,
+                saleMonthYear
+            });
+            showToast('تم تحديث عملية البيع المعلقة بنجاح!');
+            closeModal('sell-shoe-modal'); // <-- أضف هذا السطر هنا
+    } else {
+    
+            // منطق إضافة بيع جديد
+            const shoeToSell = await db.shoes.get(shoeId);
+            if (!shoeToSell) { showToast('لم يتم العثور على الحذاء المحدد.', 'error'); return; }
+            const sizeIndex = shoeToSell.sizes.findIndex(s => s.size === size);
+            if (sizeIndex === -1 || shoeToSell.sizes[sizeIndex].quantity < quantitySold) {
+                showToast(`الكمية المطلوبة (${quantitySold}) لمقاس ${size} غير متوفرة.`, 'error');
+                return;
+            }
+
+            const newSizes = [...shoeToSell.sizes];
+            newSizes[sizeIndex].quantity -= quantitySold;
+            await db.shoes.update(shoeId, { sizes: newSizes });
+
+            const pendingSale = {
+                id: `pending_${Date.now()}`,
+                shoeId, shoeName, shoeImage: shoeToSell.imageUrl,
+                size, quantitySold, sellPrice, sellDate, notes,
+                customerName, customerAddress, customerPhone,
+                shippingConfirmed: false,
+                saleMonthYear: saleMonthYear,
+                shippingPrice: shippingPrice
+            };
+            await db.pendingSales.add(pendingSale);
+            showToast('أُضيفت البيعة للتأكيد. الكمية خُصمت من المخزون.');
+
+// حفظ بيانات العميل لزر "إضافة منتج آخر"
+            lastCustomerData = {
+                name: customerName,
+                address: customerAddress,
+                phone: customerPhone
+            };
+
+            // إغلاق المودال مباشرة بعد حفظ البيع
+            closeModal('sell-shoe-modal'); 
+
+            // عرض التوست مع خيار "إضافة منتج آخر"
+            showToast('تمت إضافة البيعة بنجاح! هل تريد إضافة منتج آخر لنفس العميل؟', 'success', 6000, [
+                {
+                    text: 'نعم',
+                    className: 'app-button-accent', // لون مميز لزر التأكيد
+                    onClick: () => openSellShoeModal() // يعيد فتح المودال بنفس بيانات العميل
+                },
+                {
+                    text: 'لا',
+                    className: 'app-button-secondary', // لون ثانوي لزر الإلغاء
+                    onClick: () => { /* لا شيء خاص هنا، التوست سيختفي */ }
+                }
+            ]);
+
+            // لا تغلق المودال هنا للسماح بإضافة منتج آخر
+            // closeModal('sell-shoe-modal'); // تم إزالة هذا السطر
+
+            // لا تغلق المودال هنا للسماح بإضافة منتج آخر
+            // closeModal('sell-shoe-modal'); // تم إزالة هذا السطر
         }
-        const sizeIndex = shoeToSell.sizes.findIndex(s => s.size === size);
-        if (sizeIndex === -1 || shoeToSell.sizes[sizeIndex].quantity < quantitySold) {
-            showToast(`الكمية المطلوبة (${quantitySold}) لمقاس ${size} غير متوفرة.`, 'error'); return;
-        }
 
-        const newSizes = [...shoeToSell.sizes];
-        newSizes[sizeIndex].quantity -= quantitySold;
-        await db.shoes.update(shoeId, { sizes: newSizes });
-
-        const pendingSale = {
-            id: `pending_${Date.now()}`, 
-            shoeId, shoeName, shoeImage: shoeToSell.imageUrl,
-            size, quantitySold, sellPrice, sellDate, notes,
-            customerName, customerAddress, customerPhone,
-            shippingConfirmed: false,
-            saleMonthYear: saleMonthYear,
-            // ▼▼▼ بداية التعديل: إضافة سعر الشحن للبيانات ▼▼▼
-            shippingPrice: shippingPrice
-            // ▲▲▲ نهاية التعديل ▲▲▲
-        };
-
-        await db.pendingSales.add(pendingSale);
-
-        showToast('أُضيفت البيعة للتأكيد. الكمية خُصمت من المخزون.');
-        closeModal('sell-shoe-modal');
+        // تحديث الواجهات ذات الصلة بعد كل عملية (سواء إضافة أو تعديل)
         if (!document.getElementById('daily-sales-confirmation-view-content').classList.contains('hidden')) {
-             displayPendingSales();
+            displayPendingSales();
         }
+        if (!document.getElementById('inventory-view-content').classList.contains('hidden')) {
+            displayAllShoes(currentShoeFilter);
+        }
+        if (!document.getElementById('stats-view-content').classList.contains('hidden')) {
+            displayStats();
+        }
+
     } catch (error) {
-        console.error("Error processing sale with Dexie:", error);
-        showToast('فشل تسجيل البيع. تحقق من الكونسول.', 'error');
+        console.error("Error processing sale/edit with Dexie:", error);
+        showToast('فشل العملية. تحقق من الكونسول.', 'error');
     }
 });
 // (الكود النهائي الصحيح)
@@ -3357,7 +3653,8 @@ async function displayPendingSales(options = {}, page = 1) {
                         </div>
                     </div>
                 </div>
-            <div class="mt-4 flex justify-end gap-3 pending-sale-actions">
+<div class="mt-4 flex justify-end gap-3 pending-sale-actions">
+                <button data-action="edit-pending-sale" data-id="${sale.id}" class="app-button app-button-secondary"><i class="fas fa-edit mr-1.5"></i> تعديل</button>
                 <button data-action="confirm-sale" data-id="${sale.id}" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
                 <button data-action="confirm-shipping" data-id="${sale.id}" class="${shippingButtonClasses}" ${shippingButtonDisabled}>${shippingButtonText}</button>
                 <button data-action="cancel-sale" data-id="${sale.id}" class="app-button bg-orange-500 hover:bg-orange-600 text-white">إلغاء البيع</button>
@@ -3493,8 +3790,10 @@ document.getElementById('pending-sales-area').addEventListener('click', function
         }
     } else if (action === 'cancel-sale') {
         cancelPendingSale(saleId);
-    } else if (action === 'delete-shipped-sale') { // ▼▼▼ هذا هو السطر الجديد ▼▼▼
-        deleteShippedSale(saleId);                  // ▼▼▼ وهذا أيضاً ▼▼▼
+    } else if (action === 'delete-shipped-sale') {
+        deleteShippedSale(saleId);
+    } else if (action === 'edit-pending-sale') { // هذا هو السطر الجديد
+        openSellShoeModal(saleId); // استدعاء الدالة مع ID البيع المعلق
     }
 });
 // (إضافة جديدة) دالة الحذف النهائي للبيع المشحون
@@ -4387,41 +4686,41 @@ document.getElementById('details-supplier-modal-added-date').textContent = new D
         }
 
         // --- View Navigation ---
-        function showView(viewId) { 
+function showView(viewId) {
     const mainViewSections = document.querySelectorAll('.main-view-section');
     mainViewSections.forEach(section => section.classList.add('hidden'));
-    
+
     const targetView = document.getElementById(viewId);
     if (targetView) {
         targetView.classList.remove('hidden');
     }
 
     if (viewId === 'inventory-view-content') {
-        displayAllShoes(currentShoeFilter); 
+        displayAllShoes(currentShoeFilter);
     } else if (viewId === 'stats-view-content') {
-        displayStats(); 
-    } else if (viewId === 'other-services-view-content') { 
-        // <-- هذا هو الجزء المضاف والمهم
+        displayStats();
+    } else if (viewId === 'other-services-view-content') {
         displayStockAlerts('stock-alerts-list-area-stats', 'stock-alert-threshold-stats');
         displayBestSellingShoes();
     } else if (viewId === 'delivery-services-view-content') {
-        displayDeliveryPrices(); 
-        document.getElementById('search-delivery-wilaya-input').value = ''; 
+        displayDeliveryPrices();
+        document.getElementById('search-delivery-wilaya-input').value = '';
     } else if (viewId === 'suppliers-view-content') {
         displaySuppliers();
-    }
-     else if (viewId === 'ai-sales-advisor-view-content') {
+    } else if (viewId === 'debts-list-view-content') {
+        displayDebts();
+    } else if (viewId === 'ai-sales-advisor-view-content') {
         document.getElementById('ai-chat-interface').classList.add('hidden');
         document.getElementById('ai-analysis-interface').classList.add('hidden');
         document.getElementById('ai-options-container').classList.remove('hidden');
         document.getElementById('ai-sales-advisor-response-area').innerHTML = '<p class="text-text-color-secondary p-4 text-center">اضغط على زر "تحليل ذكي" أعلاه للحصول على نصائح...</p>';
-        aiChatHistory = []; 
-        const chatArea = document.getElementById('ai-chat-area'); 
+        aiChatHistory = [];
+        const chatArea = document.getElementById('ai-chat-area');
         chatArea.innerHTML = '<div class="chat-message bot"><span class="sender">المساعد الذكي Pro</span>مرحباً! أنا مساعدك الذكي. كيف يمكنني خدمتك اليوم؟</div>';
-        document.getElementById('ai-chat-input').value = ''; 
+        document.getElementById('ai-chat-input').value = '';
     } else if (viewId === 'returns-view-content') {
         document.getElementById('return-search-result-area').innerHTML = '<p class="text-text-color-secondary p-3 text-center">أدخل رقم هاتف للبحث أو قم بإضافة عميل جديد إلى القائمة.</p>';
-        document.getElementById('all-returns-list-area').classList.add('hidden'); 
+        document.getElementById('all-returns-list-area').classList.add('hidden');
         editingReturnId = null;
         document.getElementById('add-return-form').reset();
         document.getElementById('add-return-form-title').textContent = 'إضافة عميل إلى قائمة الإرجاع';
@@ -4853,6 +5152,17 @@ window.addEventListener('load', async () => {
 
     document.getElementById('add-size-button').addEventListener('click', () => addSizeQuantityPair('', ''));
     document.getElementById('generate-description-button').addEventListener('click', generateShoeDescription);
+    document.getElementById('debt-image').addEventListener('change', function(event) {
+    const preview = document.getElementById('debt-image-preview');
+    if (event.target.files && event.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+});
     // ... (بقية الأحداث تبقى كما هي)
     // تأكد من أن كل الأحداث الأخرى (event listeners) موجودة هنا
 
@@ -4924,6 +5234,8 @@ statsCardsToggle.addEventListener('change', function() {
             document.getElementById('add-shoe-form').addEventListener('submit', saveShoeData);
             document.getElementById('edit-delivery-price-form').addEventListener('submit', handleEditDeliveryPriceForm);
             document.getElementById('add-supplier-form').addEventListener('submit', handleAddSupplierForm); 
+                document.getElementById('add-debt-form').addEventListener('submit', handleAddDebtForm);
+
 
             const searchDeliveryInput = document.getElementById('search-delivery-wilaya-input');
             if (searchDeliveryInput) {
@@ -5068,6 +5380,7 @@ statsCardsToggle.addEventListener('change', function() {
                     navigateToView(viewIdToNavigate, item);
                 });
             });
+            
         
 // (إضافة جديدة) دالة لفتح نافذة معلومات المستخدم
 function openUserInfoModal() {
@@ -5115,6 +5428,7 @@ function promptForDateFilter() {
         if (selectedDate) {
             document.querySelectorAll('#pending-sale-filter-buttons .filter-button').forEach(btn => btn.classList.remove('active'));
             document.getElementById('date-filter-btn').classList.add('active');
+            document.getElementById('add-debt-form').addEventListener('submit', handleAddDebtForm);
 
             displayPendingSales({ dateFilter: selectedDate });
             closeModal('message-modal');
@@ -5251,6 +5565,293 @@ function applyTheme(themeName) {
         }
     });
 }
+// ==========================================================
+//  كود خاص بإدارة الديون (النسخة النهائية الكاملة)
+// ==========================================================
+
+let editingDebtId = null;
+
+// استبدل الدالة القديمة بالكامل بهذه
+async function displayDebts() {
+    const listArea = document.getElementById('debts-list-area');
+    listArea.innerHTML = '';
+    try {
+        const debts = await db.debts.orderBy('addedDate').reverse().toArray();
+        if (debts.length === 0) {
+            listArea.innerHTML = '<p class="text-center text-gray-500 mt-6 md:col-span-2">لا توجد ديون مسجلة حاليًا.</p>';
+            return;
+        }
+
+        debts.forEach(debt => {
+            const card = document.createElement('div');
+            card.className = 'debt-card'; // استخدام الكلاس الجديد
+            card.onclick = () => openDebtDetailsModal(debt.id);
+
+            let imageElement;
+            if (debt.imageUrl) {
+                imageElement = `<div class="debt-card-image-container"><img src="${debt.imageUrl}" alt="${debt.firstName}"></div>`;
+            } else {
+                const firstLetter = debt.firstName ? debt.firstName.charAt(0).toUpperCase() : '?';
+                imageElement = `<div class="debt-card-image-container debt-card-no-image">${firstLetter}</div>`;
+            }
+
+            // الهيكل الجديد للبطاقة
+            card.innerHTML = `
+                ${imageElement}
+                <h5>${debt.firstName} ${debt.lastName}</h5>
+                <p class="debt-amount">${debt.amount.toFixed(2)} دج</p>
+                <p class="debt-notes" title="${debt.notes || ''}">${debt.notes || 'لا توجد ملاحظات'}</p>
+                <div class="debt-card-actions">
+                    <button onclick="event.stopPropagation(); openAddDebtModal(${debt.id})" class="app-button app-button-secondary text-xs px-3 py-1">تعديل</button>
+                    <button onclick="event.stopPropagation(); confirmDeleteDebt(${debt.id})" class="app-button app-button-danger text-xs px-3 py-1">حذف</button>
+                </div>
+            `;
+            listArea.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Error displaying debts:", error);
+        showToast('خطأ في عرض الديون.', 'error');
+    }
+}
+// دالة لفتح نافذة تفاصيل الدين
+async function openDebtDetailsModal(debtId) {
+    try {
+        const debt = await db.debts.get(debtId);
+        if (!debt) {
+            showToast('لم يتم العثور على الدين المحدد.', 'error');
+            return;
+        }
+
+        document.getElementById('details-debt-modal-name').textContent = `${debt.firstName} ${debt.lastName}`;
+        const imageContainer = document.getElementById('details-debt-modal-image-container');
+        if (debt.imageUrl) {
+            imageContainer.innerHTML = `<img src="${debt.imageUrl}" alt="${debt.firstName}" class="w-32 h-32 object-cover rounded-full border-4 border-white shadow-md">`;
+        } else {
+            const firstLetter = debt.firstName ? debt.firstName.charAt(0).toUpperCase() : '?';
+            imageContainer.innerHTML = `<div class="w-32 h-32 bg-primary-color-light text-primary-color-dark flex items-center justify-center text-5xl font-bold rounded-full border-4 border-white shadow-md">${firstLetter}</div>`;
+        }
+        
+        document.getElementById('details-debt-modal-amount').textContent = `${debt.amount.toFixed(2)} دج`;
+        document.getElementById('details-debt-modal-notes').textContent = debt.notes || 'لا توجد ملاحظات مسجلة.';
+        document.getElementById('details-debt-modal-added-date').textContent = new Date(debt.addedDate).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', numberingSystem: 'latn' });
+        
+        showModal('debt-details-modal');
+    } catch (error) {
+        console.error("Error opening debt details:", error);
+        showToast('خطأ في عرض تفاصيل الدين.', 'error');
+    }
+}
+
+// أبقِ على بقية الدوال كما هي إذا كانت موجودة، أو استخدم هذه النسخ النظيفة
+async function openAddDebtModal(debtId = null) {
+    const form = document.getElementById('add-debt-form');
+    const modalTitle = document.getElementById('add-edit-debt-modal-title');
+    const saveButton = document.getElementById('save-debt-button');
+    const imagePreview = document.getElementById('debt-image-preview');
+
+    form.reset();
+    imagePreview.style.display = 'none';
+    imagePreview.src = '#';
+    editingDebtId = debtId;
+    document.getElementById('editing-debt-id').value = debtId;
+
+    if (debtId) {
+        modalTitle.textContent = 'تعديل بيانات الدين';
+        saveButton.textContent = 'حفظ التعديلات';
+        const debt = await db.debts.get(debtId);
+        if (debt) {
+            document.getElementById('debt-first-name').value = debt.firstName;
+            document.getElementById('debt-last-name').value = debt.lastName || '';
+            document.getElementById('debt-amount').value = debt.amount;
+            document.getElementById('debt-notes').value = debt.notes || '';
+            if (debt.imageUrl) {
+                imagePreview.src = debt.imageUrl;
+                imagePreview.style.display = 'block';
+            }
+        }
+    } else {
+        modalTitle.textContent = 'إضافة دين جديد';
+        saveButton.textContent = 'حفظ الدين';
+    }
+    showModal('add-debt-modal');
+}
+
+async function handleAddDebtForm(event) {
+    event.preventDefault();
+    const firstName = document.getElementById('debt-first-name').value.trim();
+    const lastName = document.getElementById('debt-last-name').value.trim();
+    const amount = parseFloat(document.getElementById('debt-amount').value);
+    const notes = document.getElementById('debt-notes').value.trim();
+    const imageInput = document.getElementById('debt-image');
+    let imageDataUrl = document.getElementById('debt-image-preview').src;
+
+    if (!firstName || isNaN(amount) || amount < 0) {
+        showToast('اسم المدين ومبلغ الدين حقول إجبارية.', 'error');
+        return;
+    }
+
+    if (imageDataUrl.endsWith('#')) {
+        imageDataUrl = null;
+    }
+
+    const processSaving = async (imgUrl) => {
+        const debtData = { firstName, lastName, amount, notes, imageUrl: imgUrl };
+        try {
+            if (editingDebtId) {
+                await db.debts.update(editingDebtId, debtData);
+                showToast('تم تحديث الدين بنجاح.');
+            } else {
+                debtData.addedDate = new Date().toISOString();
+                await db.debts.add(debtData);
+                showToast('تمت إضافة الدين بنجاح.');
+            }
+            closeModal('add-debt-modal');
+            displayDebts();
+        } catch (error) {
+            console.error("Error saving debt:", error);
+            showToast('فشل حفظ الدين.', 'error');
+        }
+    };
+
+    if (imageInput.files && imageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => processSaving(e.target.result);
+        reader.readAsDataURL(imageInput.files[0]);
+    } else {
+        processSaving(imageDataUrl);
+    }
+}
+
+function confirmDeleteDebt(debtId) {
+    showModal('message-modal', 'هل أنت متأكد أنك تريد حذف هذا الدين؟ لا يمكن التراجع عن هذا الإجراء.');
+    document.getElementById('message-modal-buttons').innerHTML = `
+        <button onclick="closeModal('message-modal')" class="app-button app-button-secondary">إلغاء</button>
+        <button id="confirm-delete-action" class="app-button app-button-danger">نعم، حذف</button>
+    `;
+    document.getElementById('confirm-delete-action').onclick = async () => {
+        try {
+            await db.debts.delete(debtId);
+            showToast('تم حذف الدين بنجاح.');
+            closeModal('message-modal');
+            displayDebts();
+        } catch (error) {
+            console.error("Error deleting debt:", error);
+            showToast('خطأ أثناء حذف الدين.', 'error');
+        }
+    };
+}
+async function printDebtsReport() {
+    const reportSection = document.getElementById('detailed-debts-report-section');
+    const container = document.getElementById('detailed-debts-container');
+    
+    if (!reportSection || !container) {
+        console.error("Print containers not found!");
+        showToast('خطأ: لم يتم العثور على حاويات الطباعة.', 'error');
+        return;
+    }
+
+    container.innerHTML = '<p>جاري تحضير التقرير...</p>';
+
+    try {
+        const debts = await db.debts.toArray();
+        if (debts.length === 0) {
+            showToast('لا توجد ديون لطباعتها.', 'error');
+            return;
+        }
+
+        const totalDebtAmount = debts.reduce((sum, debt) => sum + debt.amount, 0);
+
+        let tableHTML = `
+            <table style="width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">الاسم الكامل</th>
+                        <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">الملاحظات</th>
+                        <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">تاريخ الإضافة</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">المبلغ (دج)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        debts.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate));
+
+        debts.forEach(debt => {
+            const debtDate = new Date(debt.addedDate).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn' });
+            tableHTML += `
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${debt.firstName} ${debt.lastName}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${debt.notes || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${debtDate}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">${debt.amount.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+                </tbody>
+                <tfoot>
+                    <tr style="background-color: #f3f4f6; font-weight: bold;">
+                        <td colspan="3" style="padding: 10px; text-align: right; border: 1px solid #ddd;">المجموع الكلي للديون:</td>
+                        <td style="padding: 10px; text-align: left; border: 1px solid #ddd; color: #F44336;">${totalDebtAmount.toFixed(2)} دج</td>
+                    </tr>
+                </tfoot>
+            </table>
+        `;
+        
+        container.innerHTML = tableHTML;
+        
+        // ---  هذا هو الكود الجديد والمهم ---
+        
+        // 1. إظهار القسم قبل الطباعة
+        reportSection.classList.remove('hidden');
+
+        // 2. استدعاء الطباعة
+        window.print();
+        
+        // 3. إخفاء القسم مجدداً بعد الطباعة (حتى لا يبقى ظاهراً على الشاشة)
+        reportSection.classList.add('hidden');
+
+    } catch (error) {
+        console.error("Error creating debts report:", error);
+        container.innerHTML = '<p style="color: red;">حدث خطأ أثناء إنشاء التقرير.</p>';
+        reportSection.classList.add('hidden'); // التأكد من إخفائه عند حدوث خطأ
+    }
+}
+
+// هذا الجزء مهم جدًا لجعل كل شيء يعمل
+window.openAddDebtModal = openAddDebtModal;
+window.confirmDeleteDebt = confirmDeleteDebt;
+window.openDebtDetailsModal = openDebtDetailsModal;
+window.printDebtsReport = printDebtsReport;
+window.printStatsReport = printStatsReport;
+
+// ▼▼▼ استبدل الدالة القديمة بالكامل بهذه النسخة الصحيحة ▼▼▼
+async function printStatsReport() {
+    const reportSection = document.getElementById('detailed-monthly-report-section');
+    const tableContainer = document.getElementById('detailed-monthly-sales-container'); 
+
+    if (!reportSection || !tableContainer) {
+        showToast('خطأ: لم يتم العثور على قسم التقرير.', 'error');
+        return;
+    }
+
+    // نتأكد من أن المحتوى محدث قبل الطباعة
+    await displayDetailedMonthlyReport();
+
+    // إظهار القسم الخارجي والجدول الداخلي
+    reportSection.classList.remove('hidden');
+    tableContainer.classList.remove('hidden'); // <-- هذا هو السطر الأهم الذي كان ناقصًا
+
+    // نعطي المتصفح لحظة ثم نطبع
+    setTimeout(() => {
+        window.print();
+        // نعيد إخفاء كل شيء كما كان
+        reportSection.classList.add('hidden');
+        tableContainer.classList.add('hidden');
+    }, 100);
+}
     </script>
    <div id="feature-toggles-modal" class="modal-overlay">
     <div class="modal-content">
@@ -5269,5 +5870,58 @@ function applyTheme(themeName) {
         </div>
     </div>
 </div> 
+<div id="add-debt-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="modal-title" id="add-edit-debt-modal-title">إضافة دين جديد</h3>
+        <form id="add-debt-form">
+            <input type="hidden" id="editing-debt-id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5">
+                <div>
+                    <label for="debt-first-name" class="form-label">اسم المدين:</label>
+                    <input type="text" id="debt-first-name" class="form-input" required>
+                </div>
+                <div>
+                    <label for="debt-last-name" class="form-label">لقب المدين:</label>
+                    <input type="text" id="debt-last-name" class="form-input">
+                </div>
+            </div>
+            <div>
+                <label for="debt-amount" class="form-label">مبلغ الدين (دج):</label>
+                <input type="number" id="debt-amount" class="form-input" required min="0">
+            </div>
+            <div>
+                <label for="debt-image" class="form-label">صورة (اختياري):</label>
+                <input type="file" id="debt-image" class="form-file-input" accept="image/*">
+                <img id="debt-image-preview" src="#" alt="معاينة الصورة" class="image-preview"/>
+            </div>
+            <div>
+                <label for="debt-notes" class="form-label">ملاحظات (اختياري):</label>
+                <textarea id="debt-notes" class="form-textarea" rows="3"></textarea>
+            </div>
+            <div class="mt-6 flex justify-center gap-x-4">
+                <button type="submit" id="save-debt-button" class="app-button app-button-primary">حفظ الدين</button>
+                <button type="button" onclick="closeModal('add-debt-modal')" class="app-button app-button-secondary">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="debt-details-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="details-debt-modal-name" class="modal-title text-center"></h3>
+        <div id="details-debt-modal-image-container" class="flex justify-center mb-4">
+            </div>
+        <h4 class="section-title">مبلغ الدين:</h4>
+        <p id="details-debt-modal-amount" class="mb-4 text-lg font-bold text-red-600"></p>
+
+        <h4 class="section-title">ملاحظات:</h4>
+<p id="details-debt-modal-notes" class="mb-4 text-sm whitespace-pre-wrap"></p>
+        <h4 class="section-title">تاريخ الإضافة:</h4>
+        <p id="details-debt-modal-added-date" class="mb-5 text-sm"></p>
+
+        <div class="mt-6 flex justify-center">
+            <button type="button" onclick="closeModal('debt-details-modal')" class="app-button app-button-secondary">إغلاق</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

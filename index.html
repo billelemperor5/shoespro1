@@ -2018,7 +2018,7 @@ import {
         // Dexie DB instance
 // استبدل كل تعريفات الـ versions القديمة بهذا التعريف الجديد
         const db = new Dexie("ShoesManagerDB_v6"); // قمنا بتغيير الاسم لضمان التحديث
-db.version(7).stores({
+db.version(8).stores({
     shoes: 'id, name, addedDate, category, *sizes.size',
     sales: '++id, shoeId, date, total, saleMonthYear, shippingPrice',
     returns: '++id, phone, date, returnMonthYear',
@@ -3654,8 +3654,7 @@ async function displayPendingSales(options = {}, page = 1) {
                     </div>
                 </div>
 <div class="mt-4 flex justify-end gap-3 pending-sale-actions">
-                <button data-action="edit-pending-sale" data-id="${sale.id}" class="app-button app-button-secondary"><i class="fas fa-edit mr-1.5"></i> تعديل</button>
-                <button data-action="confirm-sale" data-id="${sale.id}" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
+<button data-action="edit-pending-sale" data-id="${sale.id}" class="app-button app-button-secondary px-3" title="تعديل بيانات البيع"><i class="fas fa-cog"></i></button>                <button data-action="confirm-sale" data-id="${sale.id}" class="app-button bg-green-500 hover:bg-green-600 text-white">تأكيد البيع</button>
                 <button data-action="confirm-shipping" data-id="${sale.id}" class="${shippingButtonClasses}" ${shippingButtonDisabled}>${shippingButtonText}</button>
                 <button data-action="cancel-sale" data-id="${sale.id}" class="app-button bg-orange-500 hover:bg-orange-600 text-white">إلغاء البيع</button>
                 ${sale.shippingConfirmed 

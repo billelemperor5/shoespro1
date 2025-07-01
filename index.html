@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap');
         
@@ -1354,7 +1355,105 @@ body.dark-mode .out-of-stock-overlay {
         color: #000000 !important;
     }
 }
-
+/* (إضافة جديدة) أنماط خاصة بقالب الصورة المصممة للحفظ */
+.image-export-template {
+    width: 450px; /* عرض ثابت للصورة النهائية */
+    background: linear-gradient(145deg, #ffffff, #f7f8fa);
+    border: 1px solid #e0e0e0;
+    font-family: 'Cairo', sans-serif;
+    color: #212121;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.dark-mode .image-export-template { /* تصميم خاص بالوضع الليلي */
+    background: linear-gradient(145deg, #2c2c2e, #1e1e1e);
+    border-color: #444;
+    color: #f5f5f5;
+}
+.image-export-template .export-img-container {
+    width: 100%;
+    height: 300px; /* ارتفاع ثابت وأنيق */
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dark-mode .image-export-template .export-img-container {
+    background-color: #333;
+}
+.image-export-template .export-img-container img {
+     max-width: 90%;
+    max-height: 90%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+.image-export-template .export-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--primary-color, #6A1B9A);
+    text-align: center;
+    margin: 0;
+}
+.dark-mode .image-export-template .export-title {
+     color: var(--primary-color, #9C27B0);
+}
+.image-export-template .export-sizes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.dark-mode .image-export-template .export-sizes-grid {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.image-export-template .export-size-item {
+    background-color: #ffffff;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.dark-mode .image-export-template .export-size-item {
+    background-color: #2e2e2e;
+    box-shadow: none;
+}
+.image-export-template .export-size-item .size-label {
+    font-size: 13px;
+    color: #757575;
+}
+.dark-mode .image-export-template .export-size-item .size-label {
+    color: #bdbdbd;
+}
+.image-export-template .export-size-item .size-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+.dark-mode .image-export-template .export-size-item .size-value {
+     color: #f5f5f5;
+}
+.image-export-template .export-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #9e9e9e;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+    margin-top: auto;
+}
+.dark-mode .image-export-template .export-footer {
+    color: #757575;
+    border-top-color: #555;
+}
     </style>
 </head>
 <body> 
@@ -1735,7 +1834,7 @@ body.dark-mode .out-of-stock-overlay {
         </div>
     </div>
 
-    <div id="shoe-details-modal" class="modal-overlay">
+<div id="shoe-details-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="details-shoe-name" class="modal-title"></h3>
             <img id="details-shoe-image" src="#" alt="صورة الحذاء" class="details-image"/>
@@ -1747,10 +1846,14 @@ body.dark-mode .out-of-stock-overlay {
             <p id="details-shoe-purchase-price" class="mb-4 text-sm"></p>
             <h4 class="section-title">الوصف:</h4>
             <p id="details-shoe-description" class="mb-5 text-sm whitespace-pre-wrap"></p>
-            <div class="mt-6 flex justify-center">
+            
+            <div class="mt-6 flex justify-center gap-x-4">
+                <button type="button" id="save-details-as-image-btn" class="app-button app-button-primary">
+                    <i class="fas fa-camera-retro mr-2"></i> حفظ كصورة
+                </button>
                 <button type="button" onclick="closeModal('shoe-details-modal')" class="app-button app-button-secondary">إغلاق</button>
             </div>
-        </div>
+            </div>
     </div>
 
     <div id="sell-shoe-modal" class="modal-overlay">
@@ -3039,9 +3142,11 @@ window.showToast = function(message, type = 'success', duration = 3000, buttons 
         }
 // (استبدال) --- دالة عرض المخزون مع ترقيم الصفحات ---
 // (استبدال) --- دالة عرض المخزون مع الميزة الجديدة للمخزون النافد ---
+// (استبدال) --- دالة عرض المخزون مع الميزة الجديدة للحفظ كصورة ---
+// (استبدال) --- دالة عرض المخزون بالتصميم الأصلي وبدون زر الحفظ ---
 async function displayAllShoes(filterCategory = 'all', page = 1) {
     currentShoeFilter = filterCategory;
-    const shoesPerPage = 12; 
+    const shoesPerPage = 12;
     const displayArea = document.getElementById('shoe-display-area');
 
     try {
@@ -3062,41 +3167,39 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
                                       .limit(shoesPerPage)
                                       .toArray();
 
-        displayArea.innerHTML = ''; 
+        displayArea.innerHTML = '';
 
         if (shoesArray.length === 0) {
-            displayArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">لا توجد أحذية تطابق هذا التصنيف "${filterCategory === 'all' ? 'الكل' : filterCategory}".</p>`;
+            displayArea.innerHTML = `<p class="text-center text-gray-500 mt-6 text-lg">لا توجد أحذية تطابق هذا التصنيف.</p>`;
         } else {
             const listContainer = document.createElement('div');
             listContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4';
             shoesArray.forEach(shoe => {
-                
                 const totalQuantity = shoe.sizes.reduce((acc, s) => acc + s.quantity, 0);
                 const card = document.createElement('div');
                 card.className = totalQuantity === 0 ? 'shoe-card out-of-stock' : 'shoe-card';
-                
-                // أصبح النقر يعمل دائماً لتسهيل الوصول للتفاصيل أو التعديل
+
+                // عند النقر على البطاقة بالكامل، تفتح التفاصيل
                 card.onclick = () => openShoeDetailsModal(shoe.id);
 
                 let imageHTML = `<div class="shoe-card-image-container"><span class="no-image-text">لا توجد صورة</span></div>`;
                 if (shoe.imageUrl) {
-                    imageHTML = `<div class="shoe-card-image-container"><img src="${shoe.imageUrl}" alt="${shoe.name}"></div>`;
+                    imageHTML = `<div class="shoe-card-image-container"><img src="${shoe.imageUrl}" alt="${shoe.name}" crossorigin="anonymous"></div>`;
                 }
-                
-                const outOfStockHTML = totalQuantity === 0 
-                    ? `<div class="out-of-stock-overlay">نفد المخزون</div>` 
+
+                const outOfStockHTML = totalQuantity === 0
+                    ? `<div class="out-of-stock-overlay">نفد المخزون</div>`
                     : '';
-                
-                // ▼▼▼ تم تنظيف الكود هنا بإزالة style من الأزرار ▼▼▼
+
+                // ▼▼▼ هنا أرجعنا التصميم القديم لعرض المقاسات ▼▼▼
                 card.innerHTML = `
-                    ${outOfStockHTML} 
+                    ${outOfStockHTML}
                     ${imageHTML}
-                    <h4 title="${shoe.name}">${shoe.name}</h4>
-                    <p class="text-xs text-gray-500">${shoe.category || 'غير مصنف'}</p>
+                    <h4>${shoe.name}</h4>
                     <p class="date-added">أضيف في: ${new Date(shoe.addedDate).toLocaleDateString('ar-EG', {day: 'numeric', month: 'short', year: 'numeric', numberingSystem: 'latn'})}</p>
                     <p class="sizes-info">
                         <span class="font-medium">المقاسات: </span>
-                        <span class="text-gray-600">${shoe.sizes.map(s => `${s.size} (${s.quantity})`).join(', ') || 'N/A'}</span>
+                        <span class="text-gray-600 dark:text-gray-400">${shoe.sizes.map(s => `${s.size} (${s.quantity})`).join(', ') || 'N/A'}</span>
                     </p>
                     <div class="shoe-card-actions">
                          <button onclick="event.stopPropagation(); openAddShoeModal('${shoe.id}')" class="app-button edit-btn"><i class="fas fa-edit mr-1.5"></i> تعديل</button>
@@ -3107,11 +3210,10 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
             });
             displayArea.appendChild(listContainer);
 
-            // ... (بقية كود ترقيم الصفحات يبقى كما هو) ...
+            // كود ترقيم الصفحات (يبقى كما هو)
             if (totalPages > 1) {
                 const paginationContainer = document.createElement('div');
                 paginationContainer.className = 'flex justify-center items-center gap-3 mt-8';
-
                 if (page > 1) {
                     const prevButton = document.createElement('button');
                     prevButton.className = 'app-button app-button-secondary';
@@ -3119,12 +3221,10 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
                     prevButton.onclick = () => displayAllShoes(filterCategory, page - 1);
                     paginationContainer.appendChild(prevButton);
                 }
-
                 const pageInfo = document.createElement('span');
                 pageInfo.className = 'font-semibold text-text-color-secondary';
                 pageInfo.textContent = `صفحة ${page} من ${totalPages}`;
                 paginationContainer.appendChild(pageInfo);
-
                 if (page < totalPages) {
                     const nextButton = document.createElement('button');
                     nextButton.className = 'app-button app-button-secondary';
@@ -3140,47 +3240,52 @@ async function displayAllShoes(filterCategory = 'all', page = 1) {
         showToast('خطأ في عرض الأحذية.', 'error');
     }
 }
-        window.openShoeDetailsModal = async function(shoeId) { /* ... same as original ... */ 
-            try {
-                await db.open();
-                const shoe = await db.shoes.get(shoeId);
-                if (!shoe) {
-                    showToast('لم يتم العثور على الحذاء المحدد.', 'error');
-                    return;
-                }
-                document.getElementById('details-shoe-name').textContent = shoe.name;
-                const detailsImage = document.getElementById('details-shoe-image');
-                if (shoe.imageUrl) {
-                    detailsImage.src = shoe.imageUrl;
-                    detailsImage.alt = shoe.name;
-                    detailsImage.style.display = 'block';
-                } else {
-                    detailsImage.style.display = 'none';
-                }
-                document.getElementById('details-shoe-category').textContent = shoe.category || 'غير محدد';
-                const sizesContainer = document.getElementById('details-shoe-sizes');
-                sizesContainer.innerHTML = ''; 
-                if (shoe.sizes && shoe.sizes.length > 0) {
-                    const ul = document.createElement('ul');
-                    ul.className = 'list-none p-0'; 
-                    shoe.sizes.forEach(s => {
-                        const li = document.createElement('li');
-                        li.className = 'py-1.5 border-b border-border-color'; 
-                        li.innerHTML = `مقاس <strong class="text-primary-color">${s.size}</strong>: ${s.quantity} قطعة متوفرة`; 
-                        ul.appendChild(li);
-                    });
-                    sizesContainer.appendChild(ul);
-                } else {
-                    sizesContainer.textContent = 'لا توجد تفاصيل مقاسات لهذا الحذاء.';
-                }
-                document.getElementById('details-shoe-purchase-price').textContent = shoe.purchasePrice ? `${shoe.purchasePrice} دج` : 'لم يحدد سعر الشراء';
-                document.getElementById('details-shoe-description').textContent = shoe.description || 'لا يوجد وصف لهذا الحذاء.';
-                showModal('shoe-details-modal');
-            } catch (error) {
-                console.error("Error opening shoe details modal:", error);
-                showToast('خطأ في عرض تفاصيل الحذاء.', 'error');
-            }
+// (استبدال) --- دالة فتح نافذة التفاصيل مع ربط زر الحفظ الجديد ---
+window.openShoeDetailsModal = async function(shoeId) {
+    try {
+        await db.open();
+        const shoe = await db.shoes.get(shoeId);
+        if (!shoe) {
+            showToast('لم يتم العثور على الحذاء المحدد.', 'error');
+            return;
         }
+        document.getElementById('details-shoe-name').textContent = shoe.name;
+        const detailsImage = document.getElementById('details-shoe-image');
+        if (shoe.imageUrl) {
+            detailsImage.src = shoe.imageUrl;
+            detailsImage.alt = shoe.name;
+            detailsImage.style.display = 'block';
+        } else {
+            detailsImage.style.display = 'none';
+        }
+        document.getElementById('details-shoe-category').textContent = shoe.category || 'غير محدد';
+        const sizesContainer = document.getElementById('details-shoe-sizes');
+        sizesContainer.innerHTML = '';
+        if (shoe.sizes && shoe.sizes.length > 0) {
+            const ul = document.createElement('ul');
+            ul.className = 'list-none p-0';
+            shoe.sizes.forEach(s => {
+                const li = document.createElement('li');
+                li.className = 'py-1.5 border-b border-border-color';
+                li.innerHTML = `مقاس <strong class="text-primary-color">${s.size}</strong>: ${s.quantity} قطعة متوفرة`;
+                ul.appendChild(li);
+            });
+            sizesContainer.appendChild(ul);
+        } else {
+            sizesContainer.textContent = 'لا توجد تفاصيل مقاسات لهذا الحذاء.';
+        }
+        document.getElementById('details-shoe-purchase-price').textContent = shoe.purchasePrice ? `${shoe.purchasePrice} دج` : 'لم يحدد سعر الشراء';
+        document.getElementById('details-shoe-description').textContent = shoe.description || 'لا يوجد وصف لهذا الحذاء.';
+
+        // ▼▼▼ هذا هو السطر الجديد والمهم لربط الزر ▼▼▼
+        document.getElementById('save-details-as-image-btn').onclick = () => saveShoeCardAsImage(shoe.id);
+
+        showModal('shoe-details-modal');
+    } catch (error) {
+        console.error("Error opening shoe details modal:", error);
+        showToast('خطأ في عرض تفاصيل الحذاء.', 'error');
+    }
+}
         window.confirmDeleteShoe = async function(shoeId) { /* ... same as original ... */ 
             showModal('message-modal', `هل أنت متأكد أنك تريد حذف هذا الحذاء؟ هذا الإجراء لا يمكن التراجع عنه.`);
             const messageModalButtons = document.getElementById('message-modal-buttons');
@@ -5851,6 +5956,103 @@ async function printStatsReport() {
         tableContainer.classList.add('hidden');
     }, 100);
 }
+// (إضافة جديدة) --- دالة لحفظ بطاقة الحذاء كصورة في المعرض ---
+// (استبدال كامل) --- دالة احترافية لحفظ بطاقة الحذاء كصورة مصممة ---
+async function saveShoeCardAsImage(shoeId) {
+    const shoe = await db.shoes.get(shoeId);
+    if (!shoe) {
+        showToast('خطأ: لم يتم العثور على بيانات الحذاء.', 'error');
+        return;
+    }
+
+    showToast('جاري تحضير الصورة الاحترافية...', 'info', 2000);
+
+    // 1. إنشاء حاوية القالب المؤقتة وإخفاؤها عن الشاشة
+    const templateContainer = document.createElement('div');
+    templateContainer.style.position = 'absolute';
+    templateContainer.style.left = '-9999px'; // إبعادها عن العرض
+    templateContainer.style.top = '0';
+
+    // 2. بناء محتوى HTML للقالب المصمم
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const sizesHTML = shoe.sizes
+        .filter(s => s.quantity > 0) // عرض المقاسات المتوفرة فقط
+        .map(s => `
+            <div class="export-size-item">
+                <div class="size-label">المقاس</div>
+                <div class="size-value">${s.size}</div>
+                <div class="size-label">الكمية: ${s.quantity}</div>
+            </div>
+        `).join('');
+
+    const imageContainerHTML = shoe.imageUrl
+        ? `<div class="export-img-container"><img src="${shoe.imageUrl}" id="temp-export-image" crossorigin="anonymous"></div>`
+        : `<div class="export-img-container"><span style="font-size: 20px; color: #9e9e9e;">لا توجد صورة</span></div>`;
+
+    templateContainer.innerHTML = `
+        <div id="image-export-template" class="image-export-template ${isDarkMode ? 'dark-mode' : ''}">
+            ${imageContainerHTML}
+            <h2 class="export-title">${shoe.name}</h2>
+            <div class="export-sizes-grid">
+                ${sizesHTML || '<p style="text-align:center; grid-column: 1 / -1;">لا توجد مقاسات متوفرة حالياً</p>'}
+            </div>
+            <div class="export-footer">
+                Shoes Manager Pro - By Billel Bouraba
+            </div>
+        </div>
+    `;
+
+    // 3. إضافة القالب المؤقت إلى الصفحة ليبدأ تحميل الصورة
+    document.body.appendChild(templateContainer);
+
+    // 4. دالة التصوير والحفظ
+    const performCapture = async () => {
+        try {
+            const elementToCapture = document.getElementById('image-export-template');
+            const canvas = await html2canvas(elementToCapture, {
+                useCORS: true,
+                scale: 2, // دقة عالية
+                allowTaint: true,
+            });
+
+            const link = document.createElement('a');
+            link.download = `[عرض] ${shoe.name.replace(/\s+/g, '-')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('تم بدء تنزيل الصورة بنجاح!', 'success');
+        } catch (error) {
+            console.error('فشل في حفظ الصورة:', error);
+            showToast('حدث خطأ أثناء محاولة حفظ الصورة.', 'error');
+        } finally {
+            // 5. التنظيف: إزالة القالب المؤقت بعد انتهاء العملية
+            document.body.removeChild(templateContainer);
+        }
+    };
+
+    // 6. انتظار تحميل الصورة قبل التصوير
+    if (shoe.imageUrl) {
+        const tempImage = document.getElementById('temp-export-image');
+        if (tempImage.complete) {
+            // إذا كانت الصورة محملة بالفعل (من الكاش)
+            performCapture();
+        } else {
+            // انتظر حتى يتم تحميل الصورة
+            tempImage.onload = performCapture;
+            tempImage.onerror = () => {
+                 showToast('فشل تحميل صورة المنتج، سيتم الحفظ بدونها.', 'error');
+                 // إزالة وسم الصورة وتصوير القالب بدونه
+                 tempImage.parentElement.innerHTML = `<span style="font-size: 20px; color: #9e9e9e;">فشل تحميل الصورة</span>`;
+                 performCapture();
+            };
+        }
+    } else {
+        // إذا لم تكن هناك صورة من الأساس
+        performCapture();
+    }
+}
+
+// لا تنس إضافة الدالة الجديدة إلى النطاق العام لتكون قابلة للاستدعاء
+window.saveShoeCardAsImage = saveShoeCardAsImage;
     </script>
    <div id="feature-toggles-modal" class="modal-overlay">
     <div class="modal-content">
@@ -5864,10 +6066,12 @@ async function printStatsReport() {
                 </label>
             </div>
             </div>
-        <div class="mt-6 flex justify-center">
-            <button type="button" onclick="closeModal('feature-toggles-modal')" class="app-button app-button-secondary">إغلاق</button>
-        </div>
-    </div>
+<div class="mt-6 flex justify-center gap-x-4">
+    <button type="button" id="save-details-as-image-btn" class="app-button app-button-primary">
+        <i class="fas fa-camera-retro mr-2"></i> حفظ كصورة
+    </button>
+    <button type="button" onclick="closeModal('shoe-details-modal')" class="app-button app-button-secondary">إغلاق</button>
+</div>
 </div> 
 <div id="add-debt-modal" class="modal-overlay">
     <div class="modal-content">
